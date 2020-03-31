@@ -7,7 +7,7 @@ namespace APFS
     {
         static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/im-aron/Documents/한컴GMD/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
             {
                 //CSB.MSB_Address = 20480;
                 CSB.BlockSize = 4096;
@@ -27,7 +27,8 @@ namespace APFS
 
         /* -little_hex_to_uint64-
          * little endian hex의 string을 그에 맞는 decimal로 바꿔준다.
-         *  parameter : hex = "123", len = 3
+         *  len : byte count
+         *  parameter : hex = "1203", len = 2
          *   return : 786
          */
         public static UInt64 little_hex_to_uint64(string hex, int len)
@@ -35,21 +36,11 @@ namespace APFS
             string big_endian = "";
             UInt64 dec = 0;
             int start = 0;
-
+            len *= 2;
             while (start < len)
             {
-
-                if (len - start == 1)
-                {
-                    big_endian = hex.Substring(start, 1) + big_endian;
-                    start += 1;
-                }
-                else
-                {
-                    big_endian = hex.Substring(start, 2) + big_endian;
-                    start += 2;
-                }
-
+                big_endian = hex.Substring(start, 2) + big_endian;
+                start += 2;
             }
             dec = Convert.ToUInt64(big_endian, 16);
             return dec;
@@ -115,6 +106,20 @@ namespace APFS
 
             }
             return address;
+        }
+
+        public static char[] hex_to_charArray(string hex)
+        {
+            /*
+             *  hex를 char array로 변환.
+             */
+            byte[] raw = new byte[hex.Length / 2];
+            for (int i = 0; i < raw.Length; i++)
+            {
+                raw[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+            }
+
+            return System.Text.Encoding.ASCII.GetString(raw).ToCharArray();
         }
     }
 }
