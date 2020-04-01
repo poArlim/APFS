@@ -7,19 +7,6 @@ namespace APFS
     public struct VB
     {
         public static UInt64 VCSB_BlockNum; //0x20
-        //public class TableType_23
-        //{
-        //    public UInt16 KeyOffset;
-        //    public UInt16 KeyLength;
-        //    public UInt16 DataOffset;
-        //    public UInt16 DataLength;
-
-        //    //Record Type에 따라 달라짐.
-        //    //public UInt64 ParentID_and_RecordType; // 0x00
-        //    public char[] KeySection;
-        //    public char[] DataSection;
-
-        //}
 
         public static void save_record(FileStream stream, UInt64 block_num, UInt64 Table_type, UInt64 record_num, Table header)
         {
@@ -60,14 +47,14 @@ namespace APFS
                         n = stream.Read(buf, 0, (int)(records_23[i].KeyLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
                         records_23[i].KeySection = hex;
-                        records_23[i].KeySection = records_23[i].KeySection.Substring(0,records_23[i].KeyLength);
+                        records_23[i].KeySection = records_23[i].KeySection.Substring(0, records_23[i].KeyLength);
 
                         //data section
                         stream.Seek((Int64)block_addr + 4096 - 40 - (Int64)records_23[i].DataOffset, SeekOrigin.Begin);
-                        n = stream.Read(buf, 0, (int)(records_23[i].DataLength/8));
+                        n = stream.Read(buf, 0, (int)(records_23[i].DataLength / 8));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
                         records_23[i].DataSection = hex;
-                        records_23[i].DataSection = records_23[i].DataSection.Substring(0,records_23[i].DataLength);
+                        records_23[i].DataSection = records_23[i].DataSection.Substring(0, records_23[i].DataLength);
 
                         Console.WriteLine("{0}", i + 1);
                         Console.WriteLine("record key offset : {0}", records_23[i].KeyOffset);
@@ -79,7 +66,7 @@ namespace APFS
                     }
                     break;
                 case 4:
-                case 5 :
+                case 5:
 
                     TableType_45[] records_45 = new TableType_45[record_num];
                     for (ulong i = 0; i < record_num; i++)
@@ -111,7 +98,7 @@ namespace APFS
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
                         records_45[i].BlockNum = (UInt64)Utility.little_hex_to_uint64(hex, n);
                     }
-                        break;
+                    break;
 
 
                 case 6:
@@ -167,7 +154,7 @@ namespace APFS
                     }
                     break;
             }
-            if(Table_type%2 == 1)
+            if (Table_type % 2 == 1)
             {
                 //footer
                 Footer footer = new Footer();
