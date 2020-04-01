@@ -9,7 +9,7 @@ namespace APFS
         public static UInt64 VCSB_BlockNum; //0x20
 
 
-        public static void save_recodeVB(FileStream stream, UInt64 block_num, UInt64 Table_type, UInt64 record_num, Table header)
+        public static void save_recordVB(FileStream stream, UInt64 block_num, UInt64 Table_type, UInt64 record_num, Table header)
         {
             int n;
             string hex;
@@ -62,12 +62,12 @@ namespace APFS
                         }
 
                         //Console.WriteLine("start : {0}", header.len_record_def);
-                        Console.WriteLine("recode key offset : {0}", records[i].KeyOffset);
-                        Console.WriteLine("recode data offset : {0}", records[i].DataOffset);
-                        Console.WriteLine("recode node id : {0}", records[i].NodeID);
-                        Console.WriteLine("recode structure id : {0}", records[i].StructureID);
-                        Console.WriteLine("recode block size: {0}", records[i].BlockSize);
-                        Console.WriteLine("recode block num: {0}", records[i].BlockNum);
+                        Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
+                        Console.WriteLine("record data offset : {0}", records[i].DataOffset);
+                        Console.WriteLine("record node id : {0}", records[i].NodeID);
+                        Console.WriteLine("record structure id : {0}", records[i].StructureID);
+                        Console.WriteLine("record block size: {0}", records[i].BlockSize);
+                        Console.WriteLine("record block num: {0}", records[i].BlockNum);
 
 
 
