@@ -7,72 +7,177 @@ namespace APFS
     public struct VB
     {
         public static UInt64 VCSB_BlockNum; //0x20
+        //public class TableType_23
+        //{
+        //    public UInt16 KeyOffset;
+        //    public UInt16 KeyLength;
+        //    public UInt16 DataOffset;
+        //    public UInt16 DataLength;
 
+        //    //Record Type에 따라 달라짐.
+        //    //public UInt64 ParentID_and_RecordType; // 0x00
+        //    public char[] KeySection;
+        //    public char[] DataSection;
 
-        public static void save_recordVB(FileStream stream, UInt64 block_num, UInt64 Table_type, UInt64 record_num, Table header)
+        //}
+
+        public static void save_record(FileStream stream, UInt64 block_num, UInt64 Table_type, UInt64 record_num, Table header)
         {
             int n;
             string hex;
-            byte[] buf = new byte[64];
+            byte[] buf = new byte[4096];
             UInt64 block_addr = Utility.get_address(block_num);
 
             switch (Table_type)
             {
-                case 7:
+                case 2:
+                case 3:
 
-                    TableType7[] records = new TableType7[record_num];
+                    TableType_23[] records_23 = new TableType_23[record_num];
                     for (ulong i = 0; i < record_num; i++)
                     {
-                        records[i] = new TableType7();
+                        records_23[i] = new TableType_23();
 
                         stream.Seek((Int64)block_addr + Convert.ToInt64("0x38", 16) + (Int64)i * 4, SeekOrigin.Begin);
                         n = stream.Read(buf, 0, 2);
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        records[i].KeyOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
+                        records_23[i].KeyOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
 
-                        //stream.Seek((Int64)block_addr + Convert.ToInt64("0x3A", 16)+ (Int64)i*4, SeekOrigin.Begin);
                         n = stream.Read(buf, 0, 2);
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        records[i].DataOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
+                        records_23[i].KeyLength = (UInt16)Utility.little_hex_to_uint64(hex, n);
+
+                        n = stream.Read(buf, 0, 2);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_23[i].DataOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
+
+                        n = stream.Read(buf, 0, 2);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_23[i].DataLength = (UInt16)Utility.little_hex_to_uint64(hex, n);
 
                         //key section
-                        stream.Seek((Int64)block_addr + (Int64)header.len_record_def + (Int64)records[i].KeyOffset + Convert.ToInt64("0x38", 16), SeekOrigin.Begin);
-                        n = stream.Read(buf, 0, 8);
+                        stream.Seek((Int64)block_addr + (Int64)header.len_record_def + (Int64)records_23[i].KeyOffset + Convert.ToInt64("0x38", 16), SeekOrigin.Begin);
+                        n = stream.Read(buf, 0, (int)(records_23[i].KeyLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        records[i].NodeID = (UInt64)Utility.little_hex_to_uint64(hex, n);
-
-                        n = stream.Read(buf, 0, 8);
-                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        records[i].StructureID = (UInt64)Utility.little_hex_to_uint64(hex, n);
+                        records_23[i].KeySection = hex;
+                        records_23[i].KeySection = records_23[i].KeySection.Substring(0,records_23[i].KeyLength);
 
                         //data section
-                        stream.Seek((Int64)block_addr + 4096 - 40 - (Int64)records[i].DataOffset, SeekOrigin.Begin);
+                        stream.Seek((Int64)block_addr + 4096 - 40 - (Int64)records_23[i].DataOffset, SeekOrigin.Begin);
+                        n = stream.Read(buf, 0, (int)(records_23[i].DataLength/8));
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_23[i].DataSection = hex;
+                        records_23[i].DataSection = records_23[i].DataSection.Substring(0,records_23[i].DataLength);
+
+                        Console.WriteLine("{0}", i + 1);
+                        Console.WriteLine("record key offset : {0}", records_23[i].KeyOffset);
+                        Console.WriteLine("record key length : {0}", records_23[i].KeyLength);
+                        Console.WriteLine("record data offset : {0}", records_23[i].DataOffset);
+                        Console.WriteLine("record data length : {0}", records_23[i].DataLength);
+                        Console.WriteLine("record key section: {0}", records_23[i].KeySection);
+                        Console.WriteLine("record data section: {0}", records_23[i].DataSection);
+                    }
+                    break;
+                case 4:
+                case 5 :
+
+                    TableType_45[] records_45 = new TableType_45[record_num];
+                    for (ulong i = 0; i < record_num; i++)
+                    {
+                        records_45[i] = new TableType_45();
+
+                        stream.Seek((Int64)block_addr + Convert.ToInt64("0x38", 16) + (Int64)i * 4, SeekOrigin.Begin);
+                        n = stream.Read(buf, 0, 2);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_45[i].KeyOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
+
+                        n = stream.Read(buf, 0, 2);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_45[i].DataOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
+
+                        //key section
+                        stream.Seek((Int64)block_addr + (Int64)header.len_record_def + (Int64)records_45[i].KeyOffset + Convert.ToInt64("0x38", 16), SeekOrigin.Begin);
+                        n = stream.Read(buf, 0, 8);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_45[i].NodeID = (UInt64)Utility.little_hex_to_uint64(hex, n);
+
+                        n = stream.Read(buf, 0, 8);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_45[i].StructureID = (UInt64)Utility.little_hex_to_uint64(hex, n);
+
+                        //data section
+                        stream.Seek((Int64)block_addr + 4096 - 40 - (Int64)records_45[i].DataOffset, SeekOrigin.Begin);
+                        n = stream.Read(buf, 0, 8);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_45[i].BlockNum = (UInt64)Utility.little_hex_to_uint64(hex, n);
+                    }
+                        break;
+
+
+                case 6:
+                case 7:
+
+                    TableType_67[] records_67 = new TableType_67[record_num];
+                    for (ulong i = 0; i < record_num; i++)
+                    {
+                        records_67[i] = new TableType_67();
+
+                        stream.Seek((Int64)block_addr + Convert.ToInt64("0x38", 16) + (Int64)i * 4, SeekOrigin.Begin);
+                        n = stream.Read(buf, 0, 2);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_67[i].KeyOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
+
+                        n = stream.Read(buf, 0, 2);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_67[i].DataOffset = (UInt16)Utility.little_hex_to_uint64(hex, n);
+
+                        //key section
+                        stream.Seek((Int64)block_addr + (Int64)header.len_record_def + (Int64)records_67[i].KeyOffset + Convert.ToInt64("0x38", 16), SeekOrigin.Begin);
+                        n = stream.Read(buf, 0, 8);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_67[i].NodeID = (UInt64)Utility.little_hex_to_uint64(hex, n);
+
+                        n = stream.Read(buf, 0, 8);
+                        hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                        records_67[i].StructureID = (UInt64)Utility.little_hex_to_uint64(hex, n);
+
+                        //data section
+                        stream.Seek((Int64)block_addr + 4096 - 40 - (Int64)records_67[i].DataOffset, SeekOrigin.Begin);
                         stream.Read(buf, 0, 4);
                         n = stream.Read(buf, 0, 4);
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        records[i].BlockSize = (UInt16)Utility.little_hex_to_uint64(hex, n);
+                        records_67[i].BlockSize = (UInt16)Utility.little_hex_to_uint64(hex, n);
 
                         n = stream.Read(buf, 0, 8);
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        records[i].BlockNum = (UInt64)Utility.little_hex_to_uint64(hex, n);
+                        records_67[i].BlockNum = (UInt64)Utility.little_hex_to_uint64(hex, n);
 
-                        if (i == 0)
-                        {
-                            VCSB_BlockNum = records[i].BlockNum;
-                        }
+                        //if (i == 0) //VB확인을 위한 임시적인 것. 함수 밖으로 빼도 됨
+                        //{
+                        //    VCSB_BlockNum = records_67[i].BlockNum;
+                        //}
 
-                        Console.WriteLine("{0}", i+1);
-                        Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
-                        Console.WriteLine("record data offset : {0}", records[i].DataOffset);
-                        Console.WriteLine("record node id : {0}", records[i].NodeID);
-                        Console.WriteLine("record structure id : {0}", records[i].StructureID);
-                        Console.WriteLine("record block size: {0}", records[i].BlockSize);
-                        Console.WriteLine("record block num: {0}", records[i].BlockNum);
-
-
-
+                        //Console.WriteLine("{0}", i + 1);
+                        //Console.WriteLine("record key offset : {0}", records_67[i].KeyOffset);
+                        //Console.WriteLine("record data offset : {0}", records_67[i].DataOffset);
+                        //Console.WriteLine("record node id : {0}", records_67[i].NodeID);
+                        //Console.WriteLine("record structure id : {0}", records_67[i].StructureID);
+                        //Console.WriteLine("record block size: {0}", records_67[i].BlockSize);
+                        //Console.WriteLine("record block num: {0}", records_67[i].BlockNum);
                     }
                     break;
+            }
+            if(Table_type%2 == 1)
+            {
+                //footer
+                Footer footer = new Footer();
+                stream.Seek((Int64)block_addr + 4096 - 16, SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 8);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                footer.TotalLeafNode = (UInt16)Utility.little_hex_to_uint64(hex, n);
+                n = stream.Read(buf, 0, 8);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                footer.TotalIndexNode = (UInt16)Utility.little_hex_to_uint64(hex, n);
             }
         }
     }
