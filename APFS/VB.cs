@@ -61,7 +61,7 @@ namespace APFS
                             VCSB_BlockNum = records[i].BlockNum;
                         }
 
-                        //Console.WriteLine("start : {0}", header.len_record_def);
+                        Console.WriteLine("{0}", i+1);
                         Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
                         Console.WriteLine("record data offset : {0}", records[i].DataOffset);
                         Console.WriteLine("record node id : {0}", records[i].NodeID);
