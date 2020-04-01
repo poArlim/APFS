@@ -5,25 +5,7 @@ namespace APFS
 {
     public struct Utility
     {
-        static void Main()
-        {
-            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
-            {
-                //CSB.MSB_Address = 20480;
-                CSB.BlockSize = 4096;
-                CSB.TotalSize = (UInt64)fs.Length;
-                //UInt64 block_num = 323;
-                //Table t = get_table_header(fs, block_num);
-                CSB.MSB_Address = Utility.get_string_address(fs, 0, "NXSB") - 32;
-                Console.WriteLine($"CSB.MSB_Address = 0x{CSB.MSB_Address:X}");
-                //Console.WriteLine("table_type : {0}", t.table_type);
-                //Console.WriteLine("len_record_def : {0}", t.len_record_def);
-                //Console.WriteLine("len_key_section : {0}", t.len_key_section);
-                //Console.WriteLine("gap_key_data : {0}", t.gap_key_data);
 
-            }
-
-        }
 
         /* -little_hex_to_uint64-
          * little endian hex의 string을 그에 맞는 decimal로 바꿔준다.

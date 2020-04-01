@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.IO;
 namespace APFS
 {
     public class VCSB
@@ -24,6 +24,126 @@ namespace APFS
         public DateTime CheckpointCreateTime; //0x160
 
         public char[] VolumeName; //0x2c0
+
+        //static void Main(String[] args)
+        //{
+        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
+        //    {
+        //        CSB.TotalSize = (UInt64)fs.Length;
+        //        CSB.BlockSize = 4096;
+        //        CSB csb = CSB.init_csb(fs, 0);
+
+        //        init_vcsb(fs, 332);
+                
+        //        Console.WriteLine("FIN");
+
+
+        //    }
+        //}
+
+        public static VCSB init_vcsb(FileStream fs, UInt64 block_num)
+        {
+            VCSB vcsb = new VCSB();
+            UInt64 block_addr = Utility.get_address(block_num);
+            int n;
+            string hex;
+            byte[] buf = new byte[128];
+
+            fs.Seek((Int64)block_addr + Convert.ToInt64("0x08", 16), SeekOrigin.Begin);
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.NodeID = Utility.little_hex_to_uint64(hex, n);
+
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.CheckpointID = Utility.little_hex_to_uint64(hex, n);
+
+            fs.Seek((Int64)block_addr + Convert.ToInt64("0x20", 16), SeekOrigin.Begin);
+            n = fs.Read(buf, 0, 4);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.Volume_Magic = Utility.hex_to_charArray(hex);
+
+            n = fs.Read(buf, 0, 4);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.VolumeNumber = (UInt32)Utility.little_hex_to_uint64(hex, n);
+
+            fs.Seek((Int64)block_addr + Convert.ToInt64("0x38", 16), SeekOrigin.Begin);
+            n = fs.Read(buf, 0, 4);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.CS = (UInt32)Utility.little_hex_to_uint64(hex, n);
+
+            fs.Seek((Int64)block_addr + Convert.ToInt64("0x58", 16), SeekOrigin.Begin);
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.BlockInVolume = Utility.little_hex_to_uint64(hex, n);
+
+            fs.Seek((Int64)block_addr + Convert.ToInt64("0x80", 16), SeekOrigin.Begin);
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.BTOM = Utility.little_hex_to_uint64(hex, n);
+
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.RootnodeNodeID = Utility.little_hex_to_uint64(hex, n);
+
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.ExtentsBtree = Utility.little_hex_to_uint64(hex, n);
+
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.SnapshotsList = Utility.little_hex_to_uint64(hex, n);
+
+            fs.Seek((Int64)block_addr + Convert.ToInt64("0xB0", 16), SeekOrigin.Begin);
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.NextCNID = Utility.little_hex_to_uint64(hex, n);
+
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.FileNum = Utility.little_hex_to_uint64(hex, n);
+
+            n = fs.Read(buf, 0, 8);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.FolderNum = Utility.little_hex_to_uint64(hex, n);
+
+            //미완성
+            //VolumeModifyTime; //0x100
+            //VolumeCreateTime; //0x130
+            //CheckpointCreateTime; //0x160
+
+            fs.Seek((Int64)block_addr + Convert.ToInt64("0x2c0", 16), SeekOrigin.Begin);
+            n = fs.Read(buf, 0, 48);
+            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            vcsb.VolumeName = Utility.hex_to_charArray(hex);
+
+
+
+
+
+            //Console.WriteLine("VCSB_Address :{0}", block_addr);
+            //Console.WriteLine("NodeID :{0}", vcsb.NodeID);
+            //Console.WriteLine("CheckpointID :{0}", vcsb.CheckpointID);
+            ////string magic = new string(vcsb.Volume_Magic);
+            ////Console.WriteLine("Volume_Magic :{0}",magic);
+            //Console.WriteLine("\nVolumeNumber :{0}", vcsb.VolumeNumber);
+            //Console.WriteLine("CS :{0}", vcsb.CS);
+            //Console.WriteLine("BlockInVolume :{0}", vcsb.BlockInVolume);
+            //Console.WriteLine("\nBTOM :{0}", vcsb.BTOM);
+            //Console.WriteLine("RootnodeNodeID :{0}", vcsb.RootnodeNodeID);
+            //Console.WriteLine("ExtentsBtree :{0}", vcsb.ExtentsBtree);
+            //Console.WriteLine("\nSnapshotsList :{0}", vcsb.SnapshotsList);
+            //Console.WriteLine("NextCNID :{0}", vcsb.NextCNID);
+            //Console.WriteLine("FileNum :{0}", vcsb.FileNum);
+            //Console.WriteLine("FolderNum :{0}", vcsb.FolderNum);
+            //Console.WriteLine("VolumeName :{0}", new string(vcsb.VolumeName) );
+
+
+            return vcsb;
+        }
+
+
+
 
 
     }
