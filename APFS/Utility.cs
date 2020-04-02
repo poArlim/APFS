@@ -5,7 +5,19 @@ namespace APFS
 {
     public struct Utility
     {
+        public static Int64 stdTime = new DateTime(1970, 1, 1, 0, 0, 0).Ticks;
+        // APFS standard : 1970/01/01/00:00:00 (nano second), DateTime structure standard : 0001/01/01/00:00:00 (100 nano second)
 
+        /* -hex_to_dateTime-
+         * hex 로 된 little endian 을 받아서 시간으로 바꾸어준다.
+         */
+        public static DateTime hex_to_dateTime(string nanosec)
+        {
+            Int64 modTime = (Int64)Utility.little_hex_to_uint64(nanosec, 8) / 100;
+            DateTime newTime = new DateTime(modTime + stdTime);
+
+            return newTime;
+        }
 
         /* -little_hex_to_uint64-
          * little endian hex의 string을 그에 맞는 decimal로 바꿔준다.
