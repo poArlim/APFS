@@ -9,56 +9,70 @@ namespace APFS
         public ExtentStatus[] es;
         public ExtentRecord[] er;
         public KeyRecord[] kr;
+        public int n_ffr = 0, n_na = 0, n_es = 0, n_er = 0, n_kr = 0;
 
-        //public static void Main()
-        //{
-        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
-        //    {
-        //        CSB.MSB_Address = 20480;
-        //        CSB.BlockSize = 4096;
-  
-        //        init_btln(fs, 323); //148000
+        public static void Main()
+        {
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
+            {
+                CSB.MSB_Address = 20480;
+                CSB.BlockSize = 4096;
 
-        //    }
-        //}
+                init_btln(fs, 323); //148000
+
+            }
+        }
         public static RECORD init_btln(FileStream stream, UInt64 block_num)
         {
+            int n_ffr = 0, n_na = 0, n_es = 0, n_er = 0, n_kr = 0;
+
             RECORD btln = new RECORD();
             Table header = Table.get_table_header(stream, block_num);
-            Console.WriteLine("block_addr : {0} record num :{1}",Utility.get_address(block_num), header.record_num);
+ 
             TableType[] table_info = Table.save_record(stream, block_num, header);
+            
 
-            Console.WriteLine("KeyOffset : {0}", table_info[0].KeyOffset);
-            Console.WriteLine("KeyLength : {0}", table_info[0].KeyLength);
-            Console.WriteLine("DataOffset : {0}", table_info[0].DataOffset);
-            Console.WriteLine("DataLength : {0}", table_info[0].DataLength);
-            Console.WriteLine("KeySection : {0}", table_info[0].KeySection);
-            Console.WriteLine("DataSection : {0}", table_info[0].DataSection);
+            //Console.WriteLine("KeyOffset : {0}", table_info[0].KeyOffset);
+            //Console.WriteLine("KeyLength : {0}", table_info[0].KeyLength);
+            //Console.WriteLine("DataOffset : {0}", table_info[0].DataOffset);
+            //Console.WriteLine("DataLength : {0}", table_info[0].DataLength);
+            //Console.WriteLine("KeySection : {0}", table_info[0].KeySection);
+            //Console.WriteLine("DataSection : {0}", table_info[0].DataSection);
 
-            for(int i = 0; i < header.record_num; i++)
+            for (int i = 0; i < header.record_num; i++)
             {
                 char record_type = table_info[i].KeySection[14];
-                Console.WriteLine("[{0}] record_type : {1}", i+1, record_type);
+                Console.WriteLine("[{0}] record_type : {1}", i + 1, record_type);
                 switch (record_type)
                 {
                     case '3':
-                        btln.ff = FileFolderRecord.get();
+
+                        btln.ff[n_ffr] = FileFolderRecord.get();
+                        n_ffr += 1; 
                         break;
 
                     case '4':
                         btln.na = NameAttribute.get();
+                        btln.ff[n_na] = FileFolderRecord.get();
+                        n_na += 1;
                         break;
 
                     case '6':
                         btln.es = ExtentStatus.get();
+                        btln.ff[n_es] = FileFolderRecord.get();
+                        n_es += 1;
                         break;
 
                     case '8':
                         btln.er = ExtentRecord.get();
+                        btln.ff[n_er] = FileFolderRecord.get();
+                        n_er += 1;
                         break;
 
                     case '9':
                         btln.kr = KeyRecord.get();
+                        btln.ff[n_kr] = FileFolderRecord.get();
+                        n_kr += 1;
                         break;
 
 
@@ -72,9 +86,10 @@ namespace APFS
  
     public class FileFolderRecord // 0x30
     {
+        
         //key section
 
-        //data section
+        //data section 
         public UInt64 ParentID; //0x00
         public UInt64 NodeID; //0x08
         public DateTime CreateTime; //0x10
@@ -95,9 +110,10 @@ namespace APFS
         public UInt64 ContentLenGross; //위에 이어서
 
 
-        public static FileFolderRecord[] get(string key, string data)
+        public static FileFolderRecord get(string key, string data)
         {
-           
+            FileFolderRecord ffr;
+            return ffr; 
         }
 
     }
@@ -107,7 +123,7 @@ namespace APFS
         //key section
 
         //data section
-        public static NameAttribute[] get(string key, string data)
+        public static NameAttribute get(string key, string data)
         {
 
         }
@@ -120,7 +136,7 @@ namespace APFS
         //data section
         public UInt32 ExtentExist; //0x00
 
-        public static ExtentStatus[] get(string key, string data)
+        public static ExtentStatus get(string key, string data)
         {
 
         }
@@ -134,7 +150,7 @@ namespace APFS
         public UInt64 ExtentLength; //0x00
         public UInt64 ExtentStartBlockNum; //0x08
 
-        public static ExtentRecord[] get(string key, string data)
+        public static ExtentRecord get(string key, string data)
         {
 
         }
@@ -150,7 +166,7 @@ namespace APFS
         public UInt64 CNID; //0x00
         public DateTime AddedDate; //0x08
 
-        public static KeyRecord[] get(string key, string data)
+        public static KeyRecord get(string key, string data)
         {
 
         }
