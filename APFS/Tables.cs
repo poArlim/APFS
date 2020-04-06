@@ -16,7 +16,7 @@ namespace APFS
         {
             int n;
             string hex;
-            byte[] buf = new byte[4096];
+            byte[] buf = new byte[8192];
             UInt64 block_addr = Utility.get_address(block_num);
             Int64 footer_length = 0;
             if (header.table_type % 2 == 1)
