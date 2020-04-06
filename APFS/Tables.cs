@@ -63,7 +63,7 @@ namespace APFS
                         stream.Seek((Int64)block_addr + (Int64)header.len_record_def + (Int64)records[i].KeyOffset + Convert.ToInt64("0x38", 16), SeekOrigin.Begin);
                         n = stream.Read(buf, 0, (int)(records[i].KeyLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        hex = hex.Substring(0, records[i].KeyLength);
+                        hex = hex.Substring(0, 2*records[i].KeyLength);
                         records[i].IndexKey = hex;
 
                         //data section
@@ -102,14 +102,14 @@ namespace APFS
                         n = stream.Read(buf, 0, (int)(records[i].KeyLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
                         records[i].KeySection = hex;
-                        records[i].KeySection = records[i].KeySection.Substring(0, records[i].KeyLength);
+                        records[i].KeySection = records[i].KeySection.Substring(0, 2*records[i].KeyLength);
 
                         //data section
                         stream.Seek((Int64)block_addr + 4096 - footer_length - (Int64)records[i].DataOffset, SeekOrigin.Begin);
                         n = stream.Read(buf, 0, (int)(records[i].DataLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
                         records[i].DataSection = hex;
-                        records[i].DataSection = records[i].DataSection.Substring(0, records[i].DataLength);
+                        records[i].DataSection = records[i].DataSection.Substring(0, 2*records[i].DataLength);
 
                         Console.WriteLine("{0}", i + 1);
                         Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
