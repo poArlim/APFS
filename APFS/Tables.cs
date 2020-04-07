@@ -111,13 +111,13 @@ namespace APFS
                         records[i].DataSection = hex;
                         records[i].DataSection = records[i].DataSection.Substring(0, 2*records[i].DataLength);
 
-                        Console.WriteLine("{0}", i + 1);
-                        Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
-                        Console.WriteLine("record key length : {0}", records[i].KeyLength);
-                        Console.WriteLine("record data offset : {0}", records[i].DataOffset);
-                        Console.WriteLine("record data length : {0}", records[i].DataLength);
-                        Console.WriteLine("record key section: {0}", records[i].KeySection);
-                        Console.WriteLine("record data section: {0}", records[i].DataSection);
+                        //Console.WriteLine("{0}", i + 1);
+                        //Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
+                        //Console.WriteLine("record key length : {0}", records[i].KeyLength);
+                        //Console.WriteLine("record data offset : {0}", records[i].DataOffset);
+                        //Console.WriteLine("record data length : {0}", records[i].DataLength);
+                        //Console.WriteLine("record key section: {0}", records[i].KeySection);
+                        //Console.WriteLine("record data section: {0}", records[i].DataSection);
                     }
                     break;
                 case 4:

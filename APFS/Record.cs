@@ -11,17 +11,17 @@ namespace APFS
         public KeyRecord[] kr;
         public int n_ffr = 0, n_na = 0, n_es = 0, n_er = 0, n_kr = 0;
 
-        public static void Main()
-        {
-            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
-            {
-                CSB.MSB_Address = 20480;
-                CSB.BlockSize = 4096;
+        //public static void Main()
+        //{
+        //    using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
+        //    {
+        //        CSB.MSB_Address = 20480;
+        //        CSB.BlockSize = 4096;
 
-                init_btln(fs, 323); //148000
+        //        init_btln(fs, 323); //148000
 
-            }
-        }
+        //    }
+        //}
         public static RECORD init_btln(FileStream stream, UInt64 block_num)
         {
             int n_ffr = 0, n_na = 0, n_es = 0, n_er = 0, n_kr = 0;
@@ -30,11 +30,17 @@ namespace APFS
             Table header = Table.get_table_header(stream, block_num);
  
             TableType[] table_info = Table.save_record(stream, block_num, header);
-            
+
+            btln.ff = new FileFolderRecord[header.record_num];
+            btln.na = new NameAttribute[header.record_num];
+            btln.es = new ExtentStatus[header.record_num];
+            btln.er = new ExtentRecord[header.record_num];
+            btln.kr = new KeyRecord[header.record_num];
+
 
             //Console.WriteLine("KeyOffset : {0}", table_info[0].KeyOffset);
             //Console.WriteLine("KeyLength : {0}", table_info[0].KeyLength);
-            //Console.WriteLine("DataOffset : {0}", table_info[0].DataOffset);
+            //Console.WriteLine("DataOffset  : {0}", table_info[0].DataOffset);
             //Console.WriteLine("DataLength : {0}", table_info[0].DataLength);
             //Console.WriteLine("KeySection : {0}", table_info[0].KeySection);
             //Console.WriteLine("DataSection : {0}", table_info[0].DataSection);
@@ -46,36 +52,30 @@ namespace APFS
                 switch (record_type)
                 {
                     case '3':
-
-                        btln.ff[n_ffr] = FileFolderRecord.get();
-                        n_ffr += 1; 
+                        btln.ff[n_ffr] = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
+                        n_ffr += 1;
                         break;
 
                     case '4':
-                        btln.na = NameAttribute.get();
-                        btln.ff[n_na] = FileFolderRecord.get();
+                        //btln.na[n_na] = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
                         n_na += 1;
                         break;
 
                     case '6':
-                        btln.es = ExtentStatus.get();
-                        btln.ff[n_es] = FileFolderRecord.get();
+                        btln.es[n_es] = ExtentStatus.get(table_info[i].KeySection, table_info[i].DataSection);
                         n_es += 1;
                         break;
 
                     case '8':
-                        btln.er = ExtentRecord.get();
-                        btln.ff[n_er] = FileFolderRecord.get();
+                        btln.er[n_er] = ExtentRecord.get(table_info[i].KeySection, table_info[i].DataSection);
                         n_er += 1;
                         break;
 
                     case '9':
-                        btln.kr = KeyRecord.get();
-                        btln.ff[n_kr] = FileFolderRecord.get();
+                        btln.kr[n_kr] = KeyRecord.get(table_info[i].KeySection, table_info[i].DataSection);
                         n_kr += 1;
                         break;
-
-
+                        
                 }
             }
             return btln;
@@ -109,11 +109,11 @@ namespace APFS
         public UInt64 ContentLenLog; //file바로 뒤
         public UInt64 ContentLenGross; //위에 이어서
 
-
+          
         public static FileFolderRecord get(string key, string data)
         {
-            FileFolderRecord ffr;
-            return ffr; 
+            FileFolderRecord ffr = new FileFolderRecord();
+            return ffr;
         }
 
     }
@@ -123,10 +123,10 @@ namespace APFS
         //key section
 
         //data section
-        public static NameAttribute get(string key, string data)
-        {
+        //public static NameAttribute get(string key, string data)
+        //{
 
-        }
+        //}
     }
 
     public class ExtentStatus // 0x60
@@ -138,7 +138,13 @@ namespace APFS
 
         public static ExtentStatus get(string key, string data)
         {
+            string hex;
+            ExtentStatus es = new ExtentStatus();
+            hex = data.Substring(0, 8);
+            es.ExtentExist = (UInt32)Utility.little_hex_to_uint64(hex, 4);
 
+            Console.WriteLine("es.ExtentExist : {0}", es.ExtentExist);
+            return es;
         }
     }
 
@@ -152,7 +158,16 @@ namespace APFS
 
         public static ExtentRecord get(string key, string data)
         {
+            string hex;
+            ExtentRecord er = new ExtentRecord();
+            hex = data.Substring(0, 16);
+            er.ExtentLength = (UInt32)Utility.little_hex_to_uint64(hex, 8);
+            hex = data.Substring(16, 16);
+            er.ExtentStartBlockNum = (UInt32)Utility.little_hex_to_uint64(hex, 8);
 
+            Console.WriteLine("na.ExtentExist : {0}", er.ExtentLength);
+            Console.WriteLine("na.ExtentStartBlockNum : {0}", er.ExtentStartBlockNum);
+            return er;
         }
     }
 
@@ -168,7 +183,31 @@ namespace APFS
 
         public static KeyRecord get(string key, string data)
         {
+            string hex;
+            KeyRecord kr = new KeyRecord();
+            //key section
+            hex = key.Substring(16, 2);
+            kr.KeyLength = (Byte)Utility.little_hex_to_uint64(hex, 1);
+            hex = key.Substring(24, kr.KeyLength*2);
+            kr.Key = Utility.hex_to_charArray(hex); 
 
+            //data section
+            hex = data.Substring(0, 16);
+            kr.CNID = (UInt64)Utility.little_hex_to_uint64(hex, 8);
+            hex = data.Substring(16, 16);
+            kr.AddedDate = Utility.hex_to_dateTime(hex);
+
+            Console.WriteLine("kr.KeyLength : {0}", kr.KeyLength);
+            Console.Write("kr.Key ");
+            for (int i = 0; i < kr.KeyLength-1; i++)
+            {
+                Console.Write("{0}", kr.Key[i]);
+            }
+            Console.WriteLine();
+            Console.WriteLine("kr.CNID : {0}", kr.CNID);
+            Console.WriteLine("kr.AddedDate : {0}", kr.AddedDate);
+
+            return kr;
         }
     }
 }
