@@ -20,6 +20,7 @@ namespace APFS
 
         //        init_btln(fs, 323); //148000
 
+
         //    }
         //}
         public static RECORD init_btln(FileStream stream, UInt64 block_num)
@@ -45,19 +46,21 @@ namespace APFS
             //Console.WriteLine("KeySection : {0}", table_info[0].KeySection);
             //Console.WriteLine("DataSection : {0}", table_info[0].DataSection);
 
+
             for (int i = 0; i < header.record_num; i++)
             {
                 char record_type = table_info[i].KeySection[14];
-                Console.WriteLine("[{0}] record_type : {1}", i + 1, record_type);
+
                 switch (record_type)
                 {
                     case '3':
+
                         btln.ff[n_ffr] = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
                         n_ffr += 1;
                         break;
 
                     case '4':
-                        //btln.na[n_na] = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
+                        btln.na[n_na] = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
                         n_na += 1;
                         break;
 
@@ -76,6 +79,7 @@ namespace APFS
                         n_kr += 1;
                         break;
                         
+
                 }
             }
             return btln;
@@ -100,19 +104,132 @@ namespace APFS
         public UInt64 HardlinkNum; //0x40
         public UInt32 OwnerID; //0x48
         public UInt32 GroupID; //0x4c
-        public UInt64 Flag; //0x50
+        public string Flag; //0x50
         public UInt16 LengthMethod; //0x5c
         public UInt16 NameLengross; //0x5e
         public UInt16 DataType; //0x60
         public UInt16 FileNameLength; //0x62
         public char[] FileName; //0x68
-        public UInt64 ContentLenLog; //file바로 뒤
-        public UInt64 ContentLenGross; //위에 이어서
+        public UInt64 ContentLenLog; // lengthMethod가 2일 경우에만
+        public UInt64 ContentLenGross; // lengthMethod가 2일 경우에만
+
+
 
           
         public static FileFolderRecord get(string key, string data)
         {
+         
+            int start, len;
             FileFolderRecord ffr = new FileFolderRecord();
+
+            start = 0;
+            len = 8;
+            ffr.ParentID = Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("ParentID : {0}, {1}", ffr.ParentID, data.Substring(start, 2 * len));
+
+            start += 2 * len; 
+            len = 8;
+            ffr.NodeID = Utility.little_hex_to_uint64(data.Substring(start , 2 * len), len);
+            //Console.WriteLine("NodeID : {0}, {1}", ffr.NodeID, data.Substring(start, 2 * len));
+
+            start += 2 * len;
+            len = 8;
+            ffr.CreateTime = Utility.hex_to_dateTime(data.Substring(start, 2 * len));
+            //Console.WriteLine("CreateTime : {0}", ffr.CreateTime);
+
+            start += 2 * len;
+            len = 8;
+            ffr.ModifyTime = Utility.hex_to_dateTime(data.Substring(start, 2 * len));
+            //Console.WriteLine("ModifyTime : {0}", ffr.ModifyTime);
+
+            start += 2 * len;
+            len = 8;
+            ffr.InodeModifyTime = Utility.hex_to_dateTime(data.Substring(start, 2 * len));
+            //Console.WriteLine("InodeModifyTime : {0}", ffr.InodeModifyTime);
+
+            start += 2 * len;
+            len = 8;
+            ffr.AccessedTime = Utility.hex_to_dateTime(data.Substring(start, 2 * len));
+            //Console.WriteLine("AccessedTime : {0}", ffr.AccessedTime);
+
+            start += 4 * len;
+            len = 8;
+            ffr.FileFolderNum = Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("FileFolderNum : {0}, {1}", ffr.FileFolderNum, data.Substring(start, 2 * len));
+
+            start += 2 * len;
+            len = 8;
+            ffr.HardlinkNum = Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("HardlinkNum : {0}, {1}", ffr.HardlinkNum, data.Substring(start, 2 * len));
+
+            start += 2 * len;
+            len = 4;
+            ffr.OwnerID = (uint)Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("OwnerID : {0}, {1}", ffr.OwnerID, data.Substring(start, 2 * len));
+
+            start += 2 * len;
+            len = 4;
+            ffr.GroupID = (uint)Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("GroupID : {0}, {1}", ffr.GroupID, data.Substring(start, 2 * len));
+
+            /* - Flag - 
+             * folder : 0100000 + rwxrwxrwx
+             * file : 1000000+ rwxrwxrwx
+             */
+
+            start += 2 * len;
+            len = 8;
+            ffr.Flag = Utility.littleEndian_to_bigEndian(data.Substring(start, 2 * len), 2);
+            //Console.WriteLine("Flag : {0}, {1}", ffr.Flag, data.Substring(start, 2 * len));
+
+
+            start += 2 * len + 8;
+            len = 2;
+            ffr.LengthMethod = (UInt16)Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("LengthMethod : {0}, {1}", ffr.LengthMethod, data.Substring(start, 2 * len));
+
+            start += 2 * len;
+            len = 2;
+            ffr.NameLengross = (UInt16)Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("NameLengross : {0}, {1}", ffr.NameLengross, data.Substring(start, 2 * len));
+
+
+            start += 2 * len;
+            len = 2;
+            ffr.DataType = (UInt16)Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("DataType : {0}, {1}", ffr.DataType, data.Substring(start, 2 * len));
+
+            start += 2 * len;
+            len = 2;
+            ffr.FileNameLength = (UInt16)Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+            //Console.WriteLine("FileNameLength : {0}, {1}", ffr.FileNameLength, data.Substring(start, 2 * len));
+
+
+            if (ffr.LengthMethod == 1)
+            {
+                start += 2 * len;
+                len = ffr.FileNameLength;
+                ffr.FileName = Utility.hex_to_charArray(data.Substring(start, 2 * len));
+            }
+            else
+            {
+
+                start += 12;
+                len = ffr.FileNameLength;
+                ffr.FileName = Utility.hex_to_charArray(data.Substring(start, 2 * len));
+
+                start += 2 * (len + 8 - len % 8);
+                len = 8;
+                ffr.ContentLenLog = Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+                //Console.WriteLine("ContentLenLog : {0}, {1}", ffr.ContentLenLog, data.Substring(start, 2 * len));
+
+                start += 2 * len;
+                len = 8;
+                ffr.ContentLenGross = Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
+                //Console.WriteLine("ContentLenGross : {0}, {1}", ffr.ContentLenGross, data.Substring(start, 2 * len));
+
+            }
+
             return ffr;
         }
 
@@ -136,6 +253,7 @@ namespace APFS
         //data section
         public UInt32 ExtentExist; //0x00
 
+
         public static ExtentStatus get(string key, string data)
         {
             string hex;
@@ -155,6 +273,7 @@ namespace APFS
         //data section
         public UInt64 ExtentLength; //0x00
         public UInt64 ExtentStartBlockNum; //0x08
+
 
         public static ExtentRecord get(string key, string data)
         {

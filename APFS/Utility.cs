@@ -115,6 +115,26 @@ namespace APFS
 
             return System.Text.Encoding.ASCII.GetString(raw).ToCharArray();
         }
+
+        /* -littleEndian_to_bigEndian-
+         * little endian hex의 string을 그에 맞는 big endian의 string으로 바꿔준다.
+        *  len : byte count
+        *  parameter : hex = "1203", len = 2
+        *   return : 786
+        */
+        public static string littleEndian_to_bigEndian(string hex, int len)
+        {
+            string big_endian = "";
+            int start = 0;
+            len *= 2;
+            while (start < len)
+            {
+                big_endian = hex.Substring(start, 2) + big_endian;
+                start += 2;
+            }
+            return big_endian;
+
+        }
     }
 }
 

@@ -1,11 +1,23 @@
 ﻿<Properties StartupConfiguration="{2BE2EEB5-7DAD-45EB-9DFC-529B9ECBC0DD}|Default">
   <MonoDevelop.Ide.ItemProperties.APFS PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="APFS/Utility.cs">
     <Files>
       <File FileName="APFS/BTCS.cs" />
       <File FileName="APFS/Extent.cs" />
-      <File FileName="APFS/Record.cs" Line="10" Column="34" />
+      <File FileName="APFS/Record.cs" Line="325" Column="31" />
+      <File FileName="APFS/Utility.cs" Line="1" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="APFS" expanded="True">
+            <Node name="APFS" expanded="True">
+              <Node name="Utility.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
