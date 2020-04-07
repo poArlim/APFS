@@ -1,0 +1,6 @@
+/Users/yang-yejin/APFS/APFS/bin/Debug/APFS.exe.config
+/Users/yang-yejin/APFS/APFS/bin/Debug/APFS.exe
+/Users/yang-yejin/APFS/APFS/bin/Debug/APFS.pdb
+/Users/yang-yejin/APFS/APFS/obj/Debug/APFS.csprojAssemblyReference.cache
+/Users/yang-yejin/APFS/APFS/obj/Debug/APFS.exe
+/Users/yang-yejin/APFS/APFS/obj/Debug/APFS.pdb

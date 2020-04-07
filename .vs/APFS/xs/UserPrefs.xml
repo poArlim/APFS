@@ -1,0 +1,16 @@
+﻿<Properties StartupConfiguration="{2BE2EEB5-7DAD-45EB-9DFC-529B9ECBC0DD}|Default">
+  <MonoDevelop.Ide.ItemProperties.APFS PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench>
+    <Files>
+      <File FileName="APFS/BTCS.cs" />
+      <File FileName="APFS/Extent.cs" />
+      <File FileName="APFS/Record.cs" Line="10" Column="34" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

@@ -13,7 +13,7 @@ namespace APFS
 
         //public static void Main()
         //{
-        //    using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
+        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
         //    {
         //        CSB.MSB_Address = 20480;
         //        CSB.BlockSize = 4096;
