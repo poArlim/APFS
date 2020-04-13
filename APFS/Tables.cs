@@ -70,7 +70,7 @@ namespace APFS
                         stream.Seek((Int64)block_addr + 4096 - footer_length - (Int64)records[i].DataOffset, SeekOrigin.Begin);
                         n = stream.Read(buf, 0, (int)(records[i].DataLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        records[i].NodeID = (UInt16)Utility.little_hex_to_uint64(hex, n);
+                        records[i].Node_ID = Utility.little_hex_to_uint64(hex, n);
                     }
                     break;
 
@@ -340,7 +340,7 @@ namespace APFS
         //key section
         public string IndexKey;
         //data section
-        public UInt64 Node_ID;
+        public UInt64 Node_ID; 
 
         //23
         public string KeySection;
