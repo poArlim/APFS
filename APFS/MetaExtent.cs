@@ -46,7 +46,7 @@ namespace APFS
         public static void init(FileStream stream, UInt64 block_num)
         {
             Table header = Table.get_table_header(stream, block_num);
-        
+
             edbList = new List<MetaExtent>();
 
             //Console.WriteLine("extent block address : {0}", Utility.get_address(block_num));
@@ -79,7 +79,7 @@ namespace APFS
             }
             else
             {
-                UInt64 edb_blockNum = block_num; 
+                UInt64 edb_blockNum = block_num;
                 header = Table.get_table_header(stream, edb_blockNum);
                 var edb = get_edb(stream, header, edb_blockNum);
                 //foreach (MetaExtent a in edb)
@@ -95,20 +95,20 @@ namespace APFS
                     edb.AddRange(edb);
             }
 
-      
+
         }
 
 
         public static List<MetaExtent> get_edb(FileStream stream, Table header, UInt64 block_num)
         {
-            List<MetaExtent> edb = new List<MetaExtent>() ;
+            List<MetaExtent> edb = new List<MetaExtent>();
             TableType[] table_info = Table.save_record(stream, block_num, header);
             //    Console.WriteLine("----edb record num : {0}------", header.record_num);
-         //   Console.WriteLine("----edb table_type : {0}------", header.table_type);
+            //   Console.WriteLine("----edb table_type : {0}------", header.table_type);
             for (int i = 0; i < header.record_num; i++)
             {
-                MetaExtent e = new MetaExtent(); 
-                int start, len; 
+                MetaExtent e = new MetaExtent();
+                int start, len;
                 string key = table_info[i].KeySection;
                 string data = table_info[i].DataSection;
 
@@ -117,18 +117,18 @@ namespace APFS
                 e.block_num_start = Utility.little_hex_to_uint64(key.Substring(start, 2 * len), len);
 
                 start += 2 * len;
-                len = 1; 
+                len = 1;
                 e.datatype = (int)Utility.little_hex_to_uint64(key.Substring(start, 2 * len), len);
 
-                start = 0 ;
-                len = 7; 
+                start = 0;
+                len = 7;
                 e.blocks_in_extent = Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
 
                 start += 2 * len + 2;
                 len = 8;
                 e.NodeID = Utility.little_hex_to_uint64(data.Substring(start, 2 * len), len);
-               
-                edb.Add(e); 
+
+                edb.Add(e);
 
             }
 
@@ -155,7 +155,7 @@ namespace APFS
                 //Console.WriteLine("blockNum to Extent : {0}, {1}", eib[i].blockNum_to_extent, Utility.get_address(eib[i].blockNum_to_extent));
 
             }
-            return eib; 
+            return eib;
         }
     }
 }

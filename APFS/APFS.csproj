@@ -55,6 +55,7 @@
     <Compile Include="Utility.cs" />
     <Compile Include="VB.cs" />
     <Compile Include="VCSB.cs" />
+    <Compile Include="MetaExtent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
