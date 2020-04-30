@@ -61,7 +61,7 @@ namespace APFS
                 {
                     UInt64 edb_blockNum = e.blockNum_to_extent;
                     header = Table.get_table_header(stream, edb_blockNum);
-                    var edb = get_edb(stream, header, edb_blockNum);
+                    edbList = get_edb(stream, header, edb_blockNum);
                     //Console.WriteLine("edb block_num: {0}, {1}", edb_blockNum, Utility.get_address(edb_blockNum));
                     //int i = 0;
                     //foreach (MetaExtent a in edb)
@@ -73,15 +73,15 @@ namespace APFS
                     //    Console.WriteLine("NodeID : {0}\n\n", a.NodeID);
 
                     //}
-                    if (edb != null)
-                        edb.AddRange(edb);
+                    if (edbList != null)
+                        edbList.AddRange(edbList);
                 }
             }
             else
             {
                 UInt64 edb_blockNum = block_num;
                 header = Table.get_table_header(stream, edb_blockNum);
-                var edb = get_edb(stream, header, edb_blockNum);
+                edbList = get_edb(stream, header, edb_blockNum);
                 //foreach (MetaExtent a in edb)
                 //{
                 //    Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
@@ -91,8 +91,8 @@ namespace APFS
 
                 //}
 
-                if (edb != null)
-                    edb.AddRange(edb);
+                if (edbList != null)
+                    edbList.AddRange(edbList);
             }
 
 

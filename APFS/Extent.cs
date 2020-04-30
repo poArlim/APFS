@@ -7,7 +7,7 @@ namespace APFS
     {
         //static void Main()
         //{
-        //    using (FileStream fs = new FileStream(@"/Users/im-aron/Documents/한컴GMD/han.dmg", FileMode.Open))
+        //    using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
         //    {
         //        long extent_address = 1208320;
         //        long extent_count = 8192;
@@ -36,7 +36,7 @@ namespace APFS
 
         public long Count { get; set; }
 
-        protected Stream Stream;
+        public Stream Stream;
 
         public static Extent read_extent(FileStream fs, long start_addr, long length)
         {
@@ -55,6 +55,8 @@ namespace APFS
             n = fs.Read(buf, 0, (int)length);
 
             new_extent.Stream.Write(buf, 0, n);
+
+            new_extent.Stream.Close();
 
             return new_extent;
         }
