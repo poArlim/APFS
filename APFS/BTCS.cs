@@ -16,32 +16,32 @@ namespace APFS
         public UInt64 TotalLeafNode;
         public UInt64 TotalIndexNode;
 
-        static void Main()
-        {
-            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
-            {
-                CSB.TotalSize = (UInt64)fs.Length;
-                CSB.BlockSize = 4096;
-                CSB.MSB_Address = 20480;
+        //static void Main()
+        //{
+        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
+        //    {
+        //        CSB.TotalSize = (UInt64)fs.Length;
+        //        CSB.BlockSize = 4096;
+        //        CSB.MSB_Address = 20480;
 
-                // CSB csb = CSB.init_csb(fs, 0);
-                Console.WriteLine("Start");
-                init_btom(fs, 327);
-                Console.WriteLine("Fin");
-            }
+        //        // CSB csb = CSB.init_csb(fs, 0);
+        //        Console.WriteLine("Start");
+        //        init_btom(fs, 327);
+        //        Console.WriteLine("Fin");
+        //    }
 
-            //using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
-            //{
-            //    CSB.TotalSize = (UInt64)fs.Length;
-            //    CSB.BlockSize = 4096;
-            //    CSB.MSB_Address = 209735680;
-            //    // CSB csb = CSB.init_csb(fs, 0);
-            //    Console.WriteLine("Start");
-            //    init_btom(fs, 421574);
-            //    Console.WriteLine("Fin");
+        //    //using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
+        //    //{
+        //    //    CSB.TotalSize = (UInt64)fs.Length;
+        //    //    CSB.BlockSize = 4096;
+        //    //    CSB.MSB_Address = 209735680;
+        //    //    // CSB csb = CSB.init_csb(fs, 0);
+        //    //    Console.WriteLine("Start");
+        //    //    init_btom(fs, 421574);
+        //    //    Console.WriteLine("Fin");
 
-            //}
-        }
+        //    //}
+        //}
 
         public static BTOM[] init_btom(FileStream stream, UInt64 block_num)
         {
