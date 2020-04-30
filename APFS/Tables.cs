@@ -55,7 +55,7 @@ namespace APFS
                         stream.Seek((Int64)block_addr + (Int64)header.len_record_def + (Int64)records[i].KeyOffset + Convert.ToInt64("0x38", 16), SeekOrigin.Begin);
                         n = stream.Read(buf, 0, (int)(records[i].KeyLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-                        hex = hex.Substring(0, 2*records[i].KeyLength);
+                        hex = hex.Substring(0, 2 * records[i].KeyLength);
                         records[i].IndexKey = hex;
 
                         //data section
@@ -94,14 +94,14 @@ namespace APFS
                         n = stream.Read(buf, 0, (int)(records[i].KeyLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
                         records[i].KeySection = hex;
-                        records[i].KeySection = records[i].KeySection.Substring(0, 2*records[i].KeyLength);
+                        records[i].KeySection = records[i].KeySection.Substring(0, 2 * records[i].KeyLength);
 
                         //data section
                         stream.Seek((Int64)block_addr + 4096 - footer_length - (Int64)records[i].DataOffset, SeekOrigin.Begin);
                         n = stream.Read(buf, 0, (int)(records[i].DataLength));
                         hex = BitConverter.ToString(buf).Replace("-", String.Empty);
                         records[i].DataSection = hex;
-                        records[i].DataSection = records[i].DataSection.Substring(0, 2*records[i].DataLength);
+                        records[i].DataSection = records[i].DataSection.Substring(0, 2 * records[i].DataLength);
 
                         //Console.WriteLine("{0}", i + 1);
                         //Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
@@ -187,13 +187,13 @@ namespace APFS
                         //    VCSB_BlockNum = records_67[i].BlockNum;
                         //}
 
-                        Console.WriteLine("{0}", i + 1);
-                        Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
-                        Console.WriteLine("record data offset : {0}", records[i].DataOffset);
-                        Console.WriteLine("record node id : {0}", records[i].NodeID);
-                        Console.WriteLine("record structure id : {0}", records[i].StructureID);
-                        Console.WriteLine("record block size: {0}", records[i].BlockSize);
-                        Console.WriteLine("record block num: {0}", records[i].BlockNum);
+                        //Console.WriteLine("{0}", i + 1);
+                        //Console.WriteLine("record key offset : {0}", records[i].KeyOffset);
+                        //Console.WriteLine("record data offset : {0}", records[i].DataOffset);
+                        //Console.WriteLine("record node id : {0}", records[i].NodeID);
+                        //Console.WriteLine("record structure id : {0}", records[i].StructureID);
+                        //Console.WriteLine("record block size: {0}", records[i].BlockSize);
+                        //Console.WriteLine("record block num: {0}", records[i].BlockNum);
                     }
                     break;
             }
@@ -221,59 +221,59 @@ namespace APFS
             return footer;
         }
 
-            //static void Main()
-            //{
-            //    using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
-            //    {
-            //        CSB.MSB_Address = 20480;
-            //        CSB.BlockSize = 4096;
-            //        //UInt64 block_num = 0;
-            //        UInt64 VCSB_addr = 332;
-            //        Table t;
+        //static void Main()
+        //{
+        //    using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
+        //    {
+        //        CSB.MSB_Address = 20480;
+        //        CSB.BlockSize = 4096;
+        //        //UInt64 block_num = 0;
+        //        UInt64 VCSB_addr = 332;
+        //        Table t;
 
-            //        //volume structure
-            //        //UInt64 VRB_addr = get_block_address(fs, block_num, "0xA0");
-            //        //Console.WriteLine("VRB address : {0}", VRB_addr);
+        //        //volume structure
+        //        //UInt64 VRB_addr = get_block_address(fs, block_num, "0xA0");
+        //        //Console.WriteLine("VRB address : {0}", VRB_addr);
 
-            //        //UInt64 VB_addr = get_block_address(fs, VRB_addr, "0x30");
-            //        //Console.WriteLine("VB address : {0}", VB_addr);
+        //        //UInt64 VB_addr = get_block_address(fs, VRB_addr, "0x30");
+        //        //Console.WriteLine("VB address : {0}", VB_addr);
 
-            //        //t = get_table_header(fs, VB_addr);
-            //        //Console.WriteLine("VB check_point : {0}", t.check_point);
-            //        //Console.WriteLine("VB table_type : {0}", t.table_type);
-            //        //Console.WriteLine("VB record_num : {0}", t.record_num);
-            //        //Console.WriteLine("VB len_record_def : {0}", t.len_record_def);
-            //        //Console.WriteLine("VB len_key_section : {0}", t.len_key_section);
-            //        //Console.WriteLine("VB gap_key_data : {0}", t.gap_key_data);
-
-
-            //        //VB.save_record(fs, VB_addr, t.table_type, t.record_num, t);
-
-            //        //BTCS
-            //        UInt64 BTCS_addr = get_block_address(fs, VCSB_addr, "0x80");
-            //        Console.WriteLine("BTCS address : {0}", BTCS_addr);
-
-            //        UInt64 BTOM_addr = get_block_address(fs, BTCS_addr, "0x30");
-            //        Console.WriteLine("BTOM address : {0}", BTOM_addr);
-
-            //        t = get_table_header(fs, BTOM_addr);
-            //        Console.WriteLine("BTOM check_point : {0}", t.check_point);
-            //        Console.WriteLine("BTOM btree num : {0}", t.btree_level);
-            //        Console.WriteLine("BTOM table_type : {0}", t.table_type);
-            //        Console.WriteLine("BTOM record_num : {0}", t.record_num);
-            //        Console.WriteLine("BTOM len_record_def : {0}", t.len_record_def);
-            //        Console.WriteLine("BTOM len_key_section : {0}", t.len_key_section);
-            //        Console.WriteLine("BTOM gap_key_data : {0}", t.gap_key_data);
-
-            //        t = get_table_header(fs, 331);
-
-            //        Table.save_record(fs, 331, t);
-            //    }
-
-            //}
+        //        //t = get_table_header(fs, VB_addr);
+        //        //Console.WriteLine("VB check_point : {0}", t.check_point);
+        //        //Console.WriteLine("VB table_type : {0}", t.table_type);
+        //        //Console.WriteLine("VB record_num : {0}", t.record_num);
+        //        //Console.WriteLine("VB len_record_def : {0}", t.len_record_def);
+        //        //Console.WriteLine("VB len_key_section : {0}", t.len_key_section);
+        //        //Console.WriteLine("VB gap_key_data : {0}", t.gap_key_data);
 
 
-            public static UInt64 get_block_address(FileStream stream, UInt64 blocknum, string address)
+        //        //VB.save_record(fs, VB_addr, t.table_type, t.record_num, t);
+
+        //        //BTCS
+        //        UInt64 BTCS_addr = get_block_address(fs, VCSB_addr, "0x80");
+        //        Console.WriteLine("BTCS address : {0}", BTCS_addr);
+
+        //        UInt64 BTOM_addr = get_block_address(fs, BTCS_addr, "0x30");
+        //        Console.WriteLine("BTOM address : {0}", BTOM_addr);
+
+        //        t = get_table_header(fs, BTOM_addr);
+        //        Console.WriteLine("BTOM check_point : {0}", t.check_point);
+        //        Console.WriteLine("BTOM btree num : {0}", t.btree_level);
+        //        Console.WriteLine("BTOM table_type : {0}", t.table_type);
+        //        Console.WriteLine("BTOM record_num : {0}", t.record_num);
+        //        Console.WriteLine("BTOM len_record_def : {0}", t.len_record_def);
+        //        Console.WriteLine("BTOM len_key_section : {0}", t.len_key_section);
+        //        Console.WriteLine("BTOM gap_key_data : {0}", t.gap_key_data);
+
+        //        t = get_table_header(fs, 331);
+
+        //        Table.save_record(fs, 331, t);
+        //    }
+
+        //}
+
+
+        public static UInt64 get_block_address(FileStream stream, UInt64 blocknum, string address)
         {
             UInt64 sought_block;
             int n;
@@ -353,7 +353,7 @@ namespace APFS
         //key section
         public string IndexKey;
         //data section
-        public UInt64 Node_ID; 
+        public UInt64 Node_ID;
 
         //23
         public string KeySection;

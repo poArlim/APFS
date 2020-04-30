@@ -59,10 +59,10 @@ namespace APFS
                         n_ffr += 1;
                         break;
 
-                    case '4':
-                        btln.na[n_na] = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
-                        n_na += 1;
-                        break;
+                    //case '4':
+                    //    btln.na[n_na] = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
+                    //    n_na += 1;
+                    //    break;
 
                     case '6':
                         btln.es[n_es] = ExtentStatus.get(table_info[i].KeySection, table_info[i].DataSection);
