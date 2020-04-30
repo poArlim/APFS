@@ -12,7 +12,7 @@ namespace APFS
         public bool IsValid;
 
         static void Main(){
-            using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
             {
                 //MSB
                 CSB.TotalSize = (UInt64)fs.Length;
@@ -74,9 +74,11 @@ namespace APFS
                     UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
                     Console.WriteLine("BTOM address : {0}", BTOM_addr);
 
-                    //TODO
+                    
                     int n = 0;
+                    
                     List<BTCS> btrn_btln = BTCS.init_btom(fs, BTOM_addr);
+                    
                     foreach (BTCS b in btrn_btln){
                         n++;
                         Console.WriteLine("node id : {0}", b.NodeID);
@@ -115,6 +117,7 @@ namespace APFS
 
                 }
 
+                Console.WriteLine("FIN"); 
 
 
             }

@@ -261,7 +261,6 @@ namespace APFS
             hex = data.Substring(0, 8);
             es.ExtentExist = (UInt32)Utility.little_hex_to_uint64(hex, 4);
 
-            Console.WriteLine("es.ExtentExist : {0}", es.ExtentExist);
             return es;
         }
     }
@@ -284,8 +283,8 @@ namespace APFS
             hex = data.Substring(16, 16);
             er.ExtentStartBlockNum = (UInt32)Utility.little_hex_to_uint64(hex, 8);
 
-            Console.WriteLine("na.ExtentExist : {0}", er.ExtentLength);
-            Console.WriteLine("na.ExtentStartBlockNum : {0}", er.ExtentStartBlockNum);
+            //Console.WriteLine("na.ExtentExist : {0}", er.ExtentLength);
+            //Console.WriteLine("na.ExtentStartBlockNum : {0}", er.ExtentStartBlockNum);
             return er;
         }
     }
@@ -316,15 +315,15 @@ namespace APFS
             hex = data.Substring(16, 16);
             kr.AddedDate = Utility.hex_to_dateTime(hex);
 
-            Console.WriteLine("kr.KeyLength : {0}", kr.KeyLength);
-            Console.Write("kr.Key ");
-            for (int i = 0; i < kr.KeyLength-1; i++)
-            {
-                Console.Write("{0}", kr.Key[i]);
-            }
-            Console.WriteLine();
-            Console.WriteLine("kr.CNID : {0}", kr.CNID);
-            Console.WriteLine("kr.AddedDate : {0}", kr.AddedDate);
+            //Console.WriteLine("kr.KeyLength : {0}", kr.KeyLength);
+            //Console.Write("kr.Key ");
+            //for (int i = 0; i < kr.KeyLength-1; i++)
+            //{
+            //    Console.Write("{0}", kr.Key[i]);
+            //}
+            //Console.WriteLine();
+            //Console.WriteLine("kr.CNID : {0}", kr.CNID);
+            //Console.WriteLine("kr.AddedDate : {0}", kr.AddedDate);
 
             return kr;
         }
