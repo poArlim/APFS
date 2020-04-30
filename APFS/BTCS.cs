@@ -61,10 +61,6 @@ namespace APFS
             List<BTCS> btin = new List<BTCS>();
             foreach (UInt64 block_num in btin_block_num)
             {
-                Console.WriteLine("numlist : {0}", block_num); 
-            }
-            foreach (UInt64 block_num in btin_block_num)
-            {
                 var b_list = init_btin(stream, block_num);
                 btin.AddRange(b_list); 
             }
