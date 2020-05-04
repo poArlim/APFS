@@ -12,7 +12,7 @@ namespace APFS
         public UInt32 CS; //0x38
 
         public UInt64 BlockInVolume; //0x58 volume에 사용되는 블럭개수
-        public UInt64 BTOM; //0x80
+        public UInt64 BTCS; //0x80
         public UInt64 RootnodeNodeID; //0x88
         public UInt64 ExtentsBtree; //0x90
         public UInt64 SnapshotsList; //0x98
@@ -81,7 +81,7 @@ namespace APFS
             fs.Seek((Int64)block_addr + Convert.ToInt64("0x80", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 8);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            vcsb.BTOM = Utility.little_hex_to_uint64(hex, n);
+            vcsb.BTCS = Utility.little_hex_to_uint64(hex, n);
 
             n = fs.Read(buf, 0, 8);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
@@ -140,7 +140,7 @@ namespace APFS
             //Console.WriteLine("\nVolumeNumber :{0}", vcsb.VolumeNumber);
             //Console.WriteLine("CS :{0}", vcsb.CS);
             //Console.WriteLine("BlockInVolume :{0}", vcsb.BlockInVolume);
-            //Console.WriteLine("\nBTOM :{0}", vcsb.BTOM);
+            //Console.WriteLine("\nBTCS :{0}", vcsb.BTCS);
             //Console.WriteLine("RootnodeNodeID :{0}", vcsb.RootnodeNodeID);
             //Console.WriteLine("ExtentsBtree :{0}", vcsb.ExtentsBtree);
             //Console.WriteLine("\nSnapshotsList :{0}", vcsb.SnapshotsList);
