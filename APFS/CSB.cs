@@ -51,6 +51,7 @@ namespace APFS
 
             n = fs.Read(buf, 0, 8);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+   
             csb.BlockID = Utility.little_hex_to_uint64(hex, n);
 
             n = fs.Read(buf, 0, 8);
@@ -83,16 +84,16 @@ namespace APFS
             fs.Seek((Int64)block_addr + Convert.ToInt64("0x80", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            csb.PreviousCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n);
+            csb.PreviousCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) + csb.BaseBlock;
 
             fs.Seek((Int64)block_addr + Convert.ToInt64("0x88", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            csb.OriginalCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n);
+            csb.OriginalCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) + csb.BaseBlock;
 
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            csb.OldestCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n);
+            csb.OldestCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) + csb.BaseBlock;
 
             fs.Seek((Int64)block_addr + Convert.ToInt64("0xA0", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 8);
