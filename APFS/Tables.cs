@@ -65,7 +65,7 @@ namespace APFS
                         records[i].Node_ID = Utility.little_hex_to_uint64(hex, n);
                     }
                     break;
-
+                case 0:
                 case 2:
                 case 3:
                     for (ulong i = 0; i < header.record_num; i++)

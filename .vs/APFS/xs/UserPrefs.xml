@@ -1,18 +1,31 @@
 ﻿<Properties StartupConfiguration="{2BE2EEB5-7DAD-45EB-9DFC-529B9ECBC0DD}|Default">
   <MonoDevelop.Ide.ItemProperties.APFS PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="APFS/Utility.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="APFS/Record.cs">
     <Files>
-      <File FileName="APFS/BTCS.cs" />
-      <File FileName="APFS/Extent.cs" />
-      <File FileName="APFS/Record.cs" Line="325" Column="31" />
-      <File FileName="APFS/Utility.cs" Line="1" Column="1" />
+      <File FileName="APFS/NodeStream.cs" Line="1" Column="1" />
+      <File FileName="APFS/App.config" />
+      <File FileName="APFS/Properties/AssemblyInfo.cs" />
+      <File FileName="APFS/Node.cs" />
+      <File FileName="APFS/iNode.cs" />
+      <File FileName="APFS/APFS.cs" Line="128" Column="12" />
+      <File FileName="APFS/MetaExtent.cs" Line="33" Column="103" />
+      <File FileName="APFS/VCSB.cs" Line="12" Column="33" NotebookId="1" />
+      <File FileName="APFS/Record.cs" Line="10" Column="9" NotebookId="1" />
+      <File FileName="APFS/Tables.cs" NotebookId="1" />
+      <File FileName="APFS/BTCS.cs" Line="38" Column="48" NotebookId="1" />
+      <File FileName="APFS/Utility.cs" NotebookId="1" />
+      <File FileName="APFS/Extent.cs" Line="49" Column="26" NotebookId="1" />
+      <File FileName="APFS/CSB.cs" NotebookId="1" />
+      <File FileName="APFS/VB.cs" NotebookId="1" />
+      <File FileName="APFS/CSBD.cs" NotebookId="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="APFS" expanded="True">
             <Node name="APFS" expanded="True">
-              <Node name="Utility.cs" selected="True" />
+              <Node name="Properties" expanded="True" />
+              <Node name="Record.cs" selected="True" />
             </Node>
           </Node>
         </State>

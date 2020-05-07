@@ -11,9 +11,9 @@ namespace APFS
 
         public bool IsValid;
 
-/*        static void Main()
+        static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/noname.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
             {
                 //MSB
                 CSB.TotalSize = (UInt64)fs.Length;
@@ -83,16 +83,23 @@ namespace APFS
                     foreach (BTCS b in btrn_btln)
                     {
                         n++;
-
-                        if (n > 1)
-                        {
-                            Console.WriteLine("{0}", n);
-                            RECORD BTLN_Record = RECORD.init_btln(fs, b.BlockNum);
-                        }
-
+                        Console.WriteLine("btrn_btln : {0} ", n);
                         Console.WriteLine("node id : {0}", b.NodeID);
                         Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
                         Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
+
+                        if (n > 1)
+                        {
+
+                            RECORD.init_btln(fs, b.BlockNum);
+                        }
+
+                    }
+
+                    foreach (FileFolderRecord f in RECORD.ffr_list)
+                    {
+                        int idx = RECORD.NodeID_ffrIdx_dic[f.NodeID];
+                        Console.WriteLine("NodeID :{0} == {1} ", f.NodeID, RECORD.ffr_list[idx].NodeID);
                     }
                     Console.WriteLine();
 
@@ -112,9 +119,8 @@ namespace APFS
                         Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
                         Console.WriteLine("NodeID : {0}\n\n", a.NodeID);
 
-                        //Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
+                        Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
 
-                        //Extent.print_output(fs, (long)a.block_num_start, (long)a.blocks_in_extent);
                     }
 
 
@@ -126,7 +132,6 @@ namespace APFS
             }
 
         }
-        */
 
         public APFS(Stream stream, long startAddress = 0)
         {

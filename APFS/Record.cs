@@ -1,88 +1,84 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
+
 namespace APFS
 {
     public class RECORD
     {
-        public FileFolderRecord[] ff;
-        public NameAttribute[] na;
-        public ExtentStatus[] es;
-        public ExtentRecord[] er;
-        public KeyRecord[] kr;
-        public int n_ffr = 0, n_na = 0, n_es = 0, n_er = 0, n_kr = 0;
+        public static Dictionary<UInt64, int> NodeID_ffrIdx_dic = new Dictionary<UInt64, int>(); //NodeID, Idx
+        public static List<FileFolderRecord> ffr_list = new List<FileFolderRecord>();
+        public static List<NameAttribute> na_list = new List<NameAttribute>();
+        public static List<ExtentStatus> es_list = new List<ExtentStatus>();
+        public static List<ExtentRecord> er_list = new List<ExtentRecord>();
+        public static List<KeyRecord> kr_list = new List<KeyRecord>();
 
         //public static void Main()
         //{
-        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
+        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
         //    {
-        //        CSB.MSB_Address = 20480;
+        //        CSB.MSB_Address = 209735680;
         //        CSB.BlockSize = 4096;
 
-        //        init_btln(fs, 323); //148000
-
+        //        init_btln(fs, 421334);
+            
 
         //    }
         //}
-        public static RECORD init_btln(FileStream stream, UInt64 block_num)
+public static void init_btln(FileStream stream, UInt64 block_num)
         {
-            int n_ffr = 0, n_na = 0, n_es = 0, n_er = 0, n_kr = 0;
-
-            RECORD btln = new RECORD();
+           
             Table header = Table.get_table_header(stream, block_num);
+            if(header.table_type == 0)
+            {
+                return;
+            }
  
             TableType[] table_info = Table.save_record(stream, block_num, header);
 
-            btln.ff = new FileFolderRecord[header.record_num];
-            btln.na = new NameAttribute[header.record_num];
-            btln.es = new ExtentStatus[header.record_num];
-            btln.er = new ExtentRecord[header.record_num];
-            btln.kr = new KeyRecord[header.record_num];
 
 
-            //Console.WriteLine("KeyOffset : {0}", table_info[0].KeyOffset);
-            //Console.WriteLine("KeyLength : {0}", table_info[0].KeyLength);
-            //Console.WriteLine("DataOffset  : {0}", table_info[0].DataOffset);
-            //Console.WriteLine("DataLength : {0}", table_info[0].DataLength);
-            //Console.WriteLine("KeySection : {0}", table_info[0].KeySection);
-            //Console.WriteLine("DataSection : {0}", table_info[0].DataSection);
-
+            Console.WriteLine("block_num: {0}", block_num);
+            //Console.WriteLine("table type : {0}", header.table_type);
 
             for (int i = 0; i < header.record_num; i++)
             {
                 char record_type = table_info[i].KeySection[14];
-
+                //Console.WriteLine("\n\n{0} record\nrecord_type {1}", i, record_type);
+                //Console.WriteLine("key len : {0}, data len {1}", table_info[i].KeyLength, table_info[i].DataLength);
                 switch (record_type)
                 {
                     case '3':
-
-                        btln.ff[n_ffr] = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
-                        n_ffr += 1;
+                        FileFolderRecord f = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
+                        NodeID_ffrIdx_dic.Add(f.NodeID, ffr_list.Count);
+                        RECORD.ffr_list.Add(f);
                         break;
 
-                    //case '4':
-                    //    btln.na[n_na] = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
-                    //    n_na += 1;
+                        //case '4':
+                       // NameAttribute na = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
+                      //  RECORD.na_list.Add(na);
                     //    break;
 
                     case '6':
-                        btln.es[n_es] = ExtentStatus.get(table_info[i].KeySection, table_info[i].DataSection);
-                        n_es += 1;
+                        ExtentStatus es = ExtentStatus.get(table_info[i].KeySection, table_info[i].DataSection);
+                        RECORD.es_list.Add(es);
+    
                         break;
 
                     case '8':
-                        btln.er[n_er] = ExtentRecord.get(table_info[i].KeySection, table_info[i].DataSection);
-                        n_er += 1;
+                        ExtentRecord er = ExtentRecord.get(table_info[i].KeySection, table_info[i].DataSection);
+                        RECORD.er_list.Add(er);
+               
                         break;
 
                     case '9':
-                        btln.kr[n_kr] = KeyRecord.get(table_info[i].KeySection, table_info[i].DataSection);
-                        n_kr += 1;
+                        KeyRecord kr = KeyRecord.get(table_info[i].KeySection, table_info[i].DataSection);
+                        RECORD.kr_list.Add(kr);
+                
                         break;
-                        
-
                 }
             }
-            return btln;
+            return;
         }
 
 
@@ -118,7 +114,8 @@ namespace APFS
           
         public static FileFolderRecord get(string key, string data)
         {
-         
+            //Console.WriteLine("key : {0}, data : {1}", key, data);
+
             int start, len;
             FileFolderRecord ffr = new FileFolderRecord();
 
@@ -283,7 +280,7 @@ namespace APFS
             hex = data.Substring(16, 16);
             er.ExtentStartBlockNum = (UInt32)Utility.little_hex_to_uint64(hex, 8);
 
-            //Console.WriteLine("na.ExtentExist : {0}", er.ExtentLength);
+            //Console.WriteLine("na.ExtentLength : {0}", er.ExtentLength);
             //Console.WriteLine("na.ExtentStartBlockNum : {0}", er.ExtentStartBlockNum);
             return er;
         }
@@ -319,7 +316,7 @@ namespace APFS
             //Console.Write("kr.Key ");
             //for (int i = 0; i < kr.KeyLength-1; i++)
             //{
-            //    Console.Write("{0}", kr.Key[i]);
+            //    //Console.Write("{0}", kr.Key[i]);
             //}
             //Console.WriteLine();
             //Console.WriteLine("kr.CNID : {0}", kr.CNID);
