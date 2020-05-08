@@ -113,14 +113,19 @@ namespace APFS
                     n = 0;
                     foreach (MetaExtent a in MetaExtent.edbList)
                     {
-                        Console.WriteLine("{0}", n++);
+                        int idx = RECORD.NodeID_ffrIdx_dic[a.NodeID];
+                        String fname = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
+                        Console.WriteLine("\n\n{0}", n++);
+                        
+                        Console.WriteLine("NodeID : {0}", a.NodeID);
+                        Console.WriteLine("Flag : {0}", RECORD.ffr_list[idx].Flag[0]);
                         Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
                         Console.WriteLine("datatype : {0}", a.datatype);
                         Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
-                        Console.WriteLine("NodeID : {0}\n\n", a.NodeID);
-
+                        
+                        Console.WriteLine("Filename : {0}", fname);
                         Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
-
+                        Extent.write_extent(a, new_extent.buf, new_extent.Count, "");
                     }
 
 
@@ -213,7 +218,7 @@ namespace APFS
         private Node expand(Node from)
         {
             // 현재 Node의 데이터를 byte배열로 읽어들여서 DirEntryBlock으로 해석한다.
-            var buffer = new byte[from.Data.Length];
+            var buffer = new byte[from.Data.Length];  
             from.Data.Read(buffer, 0, buffer.Length);
 
             var node = new DirEntryBlock(buffer);

@@ -1,34 +1,71 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace APFS
 {
     public class Extent
     {
-        //static void Main()
+        //public static void Main()
         //{
-        //    using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
+        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
         //    {
-        //        long extent_address = 1208320;
-        //        long extent_count = 8192;
+        //        CSB.TotalSize = (UInt64)fs.Length;
+        //        CSB.BlockSize = 4096;
+        //        CSB.MSB_Address = 20480;
 
-        //        Extent new_extent = read_extent(fs, extent_address, extent_count);
+        //        // CSB csb = CSB.init_csb(fs, 0);
+        //        Console.WriteLine("Start");
+        //        List<BTCS> btrn_btln = BTCS.init_btom(fs, 327);
+        //        int n = 0;
+        //        foreach (BTCS b in btrn_btln)
+        //        {
+        //            n++;
+        //            //Console.WriteLine("node id : {0}", b.NodeID);
+        //            //Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
+        //            //Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
+        //            if (n > 1)
+        //            {
 
-        //        Console.WriteLine("extent_address = {0}", new_extent.Offset);
-        //        Console.WriteLine("extent_count = {0}", new_extent.Count);
-        //        Console.WriteLine("extent stream = {0}", new_extent.Stream);
+        //                RECORD.init_btln(fs, b.BlockNum);
+        //            }
+        //        }
 
+        //        foreach (FileFolderRecord f in RECORD.ffr_list)
+        //        {
+        //            int idx = RECORD.NodeID_ffrIdx_dic[f.NodeID];
+        //            Console.WriteLine("NodeID :{0} == {1} ", f.NodeID, RECORD.ffr_list[idx].NodeID);
+        //        }
+        //        Console.WriteLine();
 
-        //        byte[] buf = new byte[new_extent.Count];
+        //        //Extent
+        //        Console.WriteLine();
+        //        UInt64 Extent_addr = 314;
+        //        Console.WriteLine("Extent : {0}", Extent_addr);
 
-        //        new_extent.Stream.Seek(0, SeekOrigin.Begin);
-        //        new_extent.Stream.Read(buf, 0, (int)new_extent.Count);
-        //        string hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+        //        MetaExtent.init(fs, Extent_addr);
+        //        /*
+        //         * RECORD.ffr_list[idx].Flag[0] == 8 -> file
+        //         * RECORD.ffr_list[idx].Flag[0] == 4 -> folder
+        //         */
+        //        n = 0;
+        //        foreach (MetaExtent a in MetaExtent.edbList)
+        //        {
+        //            Console.WriteLine("\n\n{0}", n++);
+        //            int idx = RECORD.NodeID_ffrIdx_dic[a.NodeID];
+        //            Console.WriteLine("NodeID : {0}", a.NodeID);
+        //            Console.WriteLine("Flag : {0}", RECORD.ffr_list[idx].Flag[0]);
+        //            Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
+        //            Console.WriteLine("datatype : {0}", a.datatype);
+        //            Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
+        //            String fname = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length-1); 
+        //            Console.WriteLine("Filename : {0}", fname);
+        //            Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
+        //            write_extent(a, new_extent.buf, new_extent.Count, ""); 
+        //        }
 
-        //        Console.WriteLine(hex);
-
+        //        Console.WriteLine("Fin");
         //    }
-
         //}
 
         // Stream에서 특정 Offset부터 Count만큼 한 Extent로 묶어 냄
@@ -38,27 +75,43 @@ namespace APFS
 
         public Stream Stream;
 
+        public byte[] buf;
+
+        public static void write_extent(MetaExtent file, byte[] buf, long count, String path)
+        {
+            int idx = RECORD.NodeID_ffrIdx_dic[file.NodeID];
+            String file_name = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
+            path = Path.Combine(path, file_name);
+            Console.WriteLine("path : {0}", path);
+            if (!File.Exists(path))
+            {
+                try
+                {
+                    using (FileStream fs = File.Create(path))
+                    {
+                        fs.Write(buf, 0, (int)count);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message.ToString()); 
+                }
+            }
+
+        }
         public static Extent read_extent(FileStream fs, long start_addr, long length)
         {
             Extent new_extent = new Extent();
 
             new_extent.Offset = start_addr;
             new_extent.Count = length;
-
-            //Stream new_extent = new FileStream();
-            new_extent.Stream = new FileStream("outStream", FileMode.Create);
-
-            int n;
-            byte[] buf = new byte[length];
+            new_extent.buf = new byte[length]; 
 
             fs.Seek(start_addr, SeekOrigin.Begin);
-            n = fs.Read(buf, 0, (int)length);
-
-            new_extent.Stream.Write(buf, 0, n);
-
-            new_extent.Stream.Close();
+            fs.Read(new_extent.buf, 0, (int)length);
 
             return new_extent;
         }
+
     }
 }
