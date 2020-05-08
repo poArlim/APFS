@@ -122,10 +122,19 @@ namespace APFS
                         Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
                         Console.WriteLine("datatype : {0}", a.datatype);
                         Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
-                        
+                     
                         Console.WriteLine("Filename : {0}", fname);
                         Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
-                        Extent.write_extent(a, new_extent.buf, new_extent.Count, "");
+                        if(RECORD.ffr_list[idx].Flag[0] == '8')
+                        {
+                            // TODO :  parameter로 path에 적절한 path 넘겨주기
+                            Extent.write_extent(a, new_extent.buf, new_extent.Count, ""); 
+                        }
+                        else if(RECORD.ffr_list[idx].Flag[0] == '4')
+                        {
+                            //TODO : Create directory
+                        }
+                        
                     }
 
 
