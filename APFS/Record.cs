@@ -6,6 +6,7 @@ namespace APFS
 {
     public class RECORD
     {
+        public static Dictionary<UInt64, List<UInt64>> parent_node_dic = new Dictionary<UInt64, List<UInt64>>() ; 
         public static Dictionary<UInt64, int> NodeID_ffrIdx_dic = new Dictionary<UInt64, int>(); //NodeID, Idx
         public static List<FileFolderRecord> ffr_list = new List<FileFolderRecord>();
         public static List<NameAttribute> na_list = new List<NameAttribute>();
@@ -15,17 +16,32 @@ namespace APFS
 
         //public static void Main()
         //{
-        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
+        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
         //    {
-        //        CSB.MSB_Address = 209735680;
+        //        CSB.TotalSize = (UInt64)fs.Length;
         //        CSB.BlockSize = 4096;
+        //        CSB.MSB_Address = 20480;
 
-        //        init_btln(fs, 421334);
-            
+        //        init_btln(fs, 323);
+        //        init_btln(fs, 331);
+        //        init_btln(fs, 325);
+
+        //        foreach( KeyValuePair<UInt64, List<UInt64>> kvp in parent_node_dic)
+        //        {
+        //            List<UInt64> node_list = kvp.Value;
+        //            Console.WriteLine("\n===== key = {0} =====", kvp.Key);
+        //            foreach(UInt64 n in node_list)
+        //            {
+        //                int idx = NodeID_ffrIdx_dic[n];
+        //                String fname = new string(ffr_list[idx].FileName, 0, ffr_list[idx].FileName.Length - 1);
+        //                Console.WriteLine("nodeID : {0}, name : {1}", n, fname); 
+        //            }
+        //        }
 
         //    }
         //}
-public static void init_btln(FileStream stream, UInt64 block_num)
+        
+        public static void init_btln(FileStream stream, UInt64 block_num)
         {
            
             Table header = Table.get_table_header(stream, block_num);
@@ -38,7 +54,7 @@ public static void init_btln(FileStream stream, UInt64 block_num)
 
 
 
-            Console.WriteLine("block_num: {0}", block_num);
+            Console.WriteLine("block_num: {0}, 0x{1}", block_num, block_num.ToString("X"));
             //Console.WriteLine("table type : {0}", header.table_type);
 
             for (int i = 0; i < header.record_num; i++)
@@ -49,9 +65,32 @@ public static void init_btln(FileStream stream, UInt64 block_num)
                 switch (record_type)
                 {
                     case '3':
-                        FileFolderRecord f = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
-                        NodeID_ffrIdx_dic.Add(f.NodeID, ffr_list.Count);
-                        RECORD.ffr_list.Add(f);
+                        FileFolderRecord f = new FileFolderRecord(); 
+                        try
+                        {
+                            f = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
+                            NodeID_ffrIdx_dic.Add(f.NodeID, ffr_list.Count);
+                            String fname = new string(f.FileName, 0, f.FileName.Length - 1);
+                            Console.WriteLine("Node ID : {0}, ParentID : {1}, Filename : {2}, Flag : {3} ", f.NodeID, f.ParentID, fname, f.Flag ); 
+                            RECORD.ffr_list.Add(f);
+
+                            if (!parent_node_dic.ContainsKey(f.ParentID))
+                            {
+                                List<UInt64> node_list = new List<UInt64>();
+                                node_list.Add(f.NodeID);
+                                parent_node_dic.Add(f.ParentID, node_list);
+                            }
+                            else
+                            {
+                                parent_node_dic[f.ParentID].Add(f.NodeID); 
+
+                            }
+                        }
+                        catch (ArgumentException)
+                        {
+                            Console.WriteLine("**************An element with Key = {0} already exists.", f.NodeID);
+                        }
+                 
                         break;
 
                         //case '4':
