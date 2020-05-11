@@ -6,6 +6,8 @@ namespace APFS
 {
     public class Extent
     {
+
+
         //public static void Main()
         //{
         //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
@@ -31,39 +33,9 @@ namespace APFS
         //            }
         //        }
 
-        //        foreach (FileFolderRecord f in RECORD.ffr_list)
-        //        {
-        //            int idx = RECORD.NodeID_ffrIdx_dic[f.NodeID];
-        //            Console.WriteLine("NodeID :{0} == {1} ", f.NodeID, RECORD.ffr_list[idx].NodeID);
-        //        }
-        //        Console.WriteLine();
-
-        //        //Extent
-        //        Console.WriteLine();
-        //        UInt64 Extent_addr = 314;
-        //        Console.WriteLine("Extent : {0}", Extent_addr);
-
-        //        MetaExtent.init(fs, Extent_addr);
-        //        /*
-        //         * RECORD.ffr_list[idx].Flag[0] == 8 -> file
-        //         * RECORD.ffr_list[idx].Flag[0] == 4 -> folder
-        //         */
-        //        n = 0;
-        //        foreach (MetaExtent a in MetaExtent.edbList)
-        //        {
-        //            Console.WriteLine("\n\n{0}", n++);
-        //            int idx = RECORD.NodeID_ffrIdx_dic[a.NodeID];
-        //            Console.WriteLine("NodeID : {0}", a.NodeID);
-        //            Console.WriteLine("Flag : {0}", RECORD.ffr_list[idx].Flag[0]);
-        //            Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
-        //            Console.WriteLine("datatype : {0}", a.datatype);
-        //            Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
-        //            String fname = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length-1); 
-        //            Console.WriteLine("Filename : {0}", fname);
-        //            Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
-        //            write_extent(a, new_extent.buf, new_extent.Count, ""); 
-        //        }
-
+        //        create_dir(17, "");
+        //        create_dir(18, "1/");
+                
         //        Console.WriteLine("Fin");
         //    }
         //}
@@ -77,6 +49,15 @@ namespace APFS
 
         public byte[] buf;
 
+        public static void create_dir(UInt64 NodeID, String path)
+        {
+            int idx = RECORD.NodeID_ffrIdx_dic[NodeID];
+            String folder_name = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
+            path = Path.Combine(path, folder_name);
+            Console.WriteLine("dir-path : {0}", path);
+            Directory.CreateDirectory(path); 
+        }
+
         public static void write_extent(MetaExtent file, byte[] buf, long count, String path)
         {
             int idx = RECORD.NodeID_ffrIdx_dic[file.NodeID];
@@ -87,15 +68,20 @@ namespace APFS
             {
                 try
                 {
+                    //TODO : file mode에 맞춰서 만들기
                     using (FileStream fs = File.Create(path))
                     {
                         fs.Write(buf, 0, (int)count);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    Console.WriteLine(e.Message.ToString()); 
+                    Console.WriteLine(e.Message.ToString());
                 }
+            }
+            else
+            {
+                Console.WriteLine("*****Already Exist Files, path : {0}", path);
             }
 
         }
