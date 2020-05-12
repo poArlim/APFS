@@ -58,9 +58,9 @@ namespace APFS
             Directory.CreateDirectory(path); 
         }
 
-        public static void write_extent(MetaExtent file, byte[] buf, long count, String path)
+        public static void write_extent(UInt64 NodeID, byte[] buf, long count, String path)
         {
-            int idx = RECORD.NodeID_ffrIdx_dic[file.NodeID];
+            int idx = RECORD.NodeID_ffrIdx_dic[NodeID];
             String file_name = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
             path = Path.Combine(path, file_name);
             Console.WriteLine("path : {0}", path);
