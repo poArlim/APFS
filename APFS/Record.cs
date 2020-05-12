@@ -11,14 +11,14 @@ namespace APFS
         public static List<FileFolderRecord> ffr_list = new List<FileFolderRecord>();
         public static List<NameAttribute> na_list = new List<NameAttribute>();
         public static List<ExtentStatus> es_list = new List<ExtentStatus>();
-        public static List<ExtentRecord> er_list = new List<ExtentRecord>();
         public static List<KeyRecord> kr_list = new List<KeyRecord>();
+        public static Dictionary<UInt64, ExtentRecord> er_dic = new Dictionary<UInt64, ExtentRecord>(); //NodeID, ExtentRecord
 
         //public static void Main()
         //{
         //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
         //    {
-        //        CSB.TotalSize = (UInt64)fs.Length;
+        //        CSB.TotalSize = (UInt64)fs.Length
         //        CSB.BlockSize = 4096;
         //        CSB.MSB_Address = 20480;
 
@@ -40,7 +40,7 @@ namespace APFS
 
         //    }
         //}
-        
+
         public static void init_btln(FileStream stream, UInt64 block_num)
         {
            
@@ -71,7 +71,7 @@ namespace APFS
                             f = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
                             NodeID_ffrIdx_dic.Add(f.NodeID, ffr_list.Count);
                             String fname = new string(f.FileName, 0, f.FileName.Length - 1);
-                            Console.WriteLine("Node ID : {0}, ParentID : {1}, Filename : {2}, Flag : {3} ", f.NodeID, f.ParentID, fname, f.Flag ); 
+                           // Console.WriteLine("Node ID : {0}, ParentID : {1}, Filename : {2}, Flag : {3} ", f.NodeID, f.ParentID, fname, f.Flag ); 
                             RECORD.ffr_list.Add(f);
 
                             if (!parent_node_dic.ContainsKey(f.ParentID))
@@ -106,7 +106,15 @@ namespace APFS
 
                     case '8':
                         ExtentRecord er = ExtentRecord.get(table_info[i].KeySection, table_info[i].DataSection);
-                        RECORD.er_list.Add(er);
+                        if (!er_dic.ContainsKey(er.NodeID))
+                        {
+                            er_dic.Add(er.NodeID, er); 
+                        }
+                        else
+                        {
+                            Console.WriteLine("*****Modify Extent Record , nodeID{0}", er.NodeID); 
+                            er_dic[er.NodeID] = er; 
+                        }
                
                         break;
 
@@ -304,7 +312,7 @@ namespace APFS
     public class ExtentRecord // 0x80
     {
         //key section
-
+        public UInt64 NodeID; //0x00
         //data section
         public UInt64 ExtentLength; //0x00
         public UInt64 ExtentStartBlockNum; //0x08
@@ -314,13 +322,16 @@ namespace APFS
         {
             string hex;
             ExtentRecord er = new ExtentRecord();
+            hex = key.Substring(0, 14);
+            er.NodeID = (UInt64)Utility.little_hex_to_uint64(hex, 7);
             hex = data.Substring(0, 16);
             er.ExtentLength = (UInt32)Utility.little_hex_to_uint64(hex, 8);
             hex = data.Substring(16, 16);
             er.ExtentStartBlockNum = (UInt32)Utility.little_hex_to_uint64(hex, 8);
 
-            //Console.WriteLine("na.ExtentLength : {0}", er.ExtentLength);
-            //Console.WriteLine("na.ExtentStartBlockNum : {0}", er.ExtentStartBlockNum);
+            //Console.WriteLine("er.NodeID:{0}", er.NodeID); 
+            //Console.WriteLine("er.ExtentLength : {0}", er.ExtentLength);
+            //Console.WriteLine("er.ExtentStartBlockNum : {0}", er.ExtentStartBlockNum);
             return er;
         }
     }
