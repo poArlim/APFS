@@ -13,7 +13,7 @@ namespace APFS
 
         static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/im-aron/Documents/한컴GMD/han.dmg", FileMode.Open))
             {
                 //MSB
                 CSB.TotalSize = (UInt64)fs.Length;
@@ -103,39 +103,93 @@ namespace APFS
                     }
                     Console.WriteLine();
 
-                    //Extent
-                    Console.WriteLine();
-                    UInt64 Extent_addr = Table.get_block_address(fs, VBrecords[0].BlockNum, "0x90");
-                    Console.WriteLine("Extent : {0}", Extent_addr);
 
-                    MetaExtent.init(fs, Extent_addr);
-
-                    n = 0;
-                    foreach (MetaExtent a in MetaExtent.edbList)
+                    foreach(KeyValuePair<UInt64, ExtentRecord> e in RECORD.er_dic)
                     {
-                        int idx = RECORD.NodeID_ffrIdx_dic[a.NodeID];
-                        String fname = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
-                        Console.WriteLine("\n\n{0}", n++);
-                        
-                        Console.WriteLine("NodeID : {0}", a.NodeID);
-                        Console.WriteLine("Flag : {0}", RECORD.ffr_list[idx].Flag[0]);
-                        Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
-                        Console.WriteLine("datatype : {0}", a.datatype);
-                        Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
-                     
-                        Console.WriteLine("Filename : {0}", fname);
-                        Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
-                        if(RECORD.ffr_list[idx].Flag[0] == '8')
-                        {
-                            // TODO :  parameter로 path에 적절한 path 넘겨주기
-                            Extent.write_extent(a, new_extent.buf, new_extent.Count, ""); 
-                        }
-                        else if(RECORD.ffr_list[idx].Flag[0] == '4')
-                        {
-                            //TODO : Create directory
-                        }
-                        
+                        Console.WriteLine("NodeID = {0}, extent_NodeID = {1}", e.Key, e.Value.NodeID);
                     }
+
+                    // Queue 만들기
+                    Queue<UInt64> q = new Queue<UInt64>();
+
+                    q.Enqueue(2);   // NodeID of root node
+
+                    int old_idx = RECORD.NodeID_ffrIdx_dic[2];
+                    RECORD.ffr_list[old_idx].path = "/Users/im-aron/Documents/4-1/Capstone/APFS/APFS/bin/Debug";
+
+                    while(q.Count > 0)
+                    {
+                        UInt64 parent_node_id = q.Dequeue();
+                        old_idx = RECORD.NodeID_ffrIdx_dic[parent_node_id];
+                        String parent_path = RECORD.ffr_list[old_idx].path;
+
+                        Console.WriteLine("ParentID = {0}", parent_node_id);
+                        foreach (FileFolderRecord f in RECORD.ffr_list)
+                        {
+                            int new_idx = RECORD.NodeID_ffrIdx_dic[f.NodeID];
+                            String new_name = new string(RECORD.ffr_list[new_idx].FileName, 0, RECORD.ffr_list[new_idx].FileName.Length - 1);
+                            String new_path = parent_path + "/" + new_name;
+                            RECORD.ffr_list[new_idx].path = new_path;
+
+                            if(RECORD.ffr_list[new_idx].ParentID == RECORD.ffr_list[old_idx].NodeID)
+                            {
+                                Console.WriteLine("     NodeID = {0}", f.NodeID);
+
+                                if (RECORD.ffr_list[new_idx].Flag[0] == '8')
+                                {
+                                    
+                                    Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[f.NodeID].ExtentStartBlockNum), (long)RECORD.er_dic[f.NodeID].ExtentLength);
+                                    Extent.write_extent(f.NodeID, new_extent.buf, new_extent.Count, new_path);
+                                }
+                                else if(RECORD.ffr_list[new_idx].Flag[0] == '4')
+                                {
+                                    q.Enqueue(f.NodeID);
+                                    Console.WriteLine("         dir-path : {0}", new_path);
+                                    Directory.CreateDirectory(new_path);
+                                    //Extent.create_dir(f.NodeID, new_path);
+                                }
+                            }
+                        }
+                    }
+
+                    Console.WriteLine();
+
+
+                    // Queue 끝
+
+                    //Extent
+                    //Console.WriteLine();
+                    //UInt64 Extent_addr = Table.get_block_address(fs, VBrecords[0].BlockNum, "0x90");
+                    //Console.WriteLine("Extent : {0}", Extent_addr);
+
+                    //MetaExtent.init(fs, Extent_addr);
+
+                    //n = 0;
+                    //foreach (MetaExtent a in MetaExtent.edbList)
+                    //{
+                    //    int idx = RECORD.NodeID_ffrIdx_dic[a.NodeID];
+                    //    String fname = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
+                    //    Console.WriteLine("\n\n{0}", n++);
+                        
+                    //    Console.WriteLine("NodeID : {0}", a.NodeID);
+                    //    Console.WriteLine("Flag : {0}", RECORD.ffr_list[idx].Flag[0]);
+                    //    Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
+                    //    Console.WriteLine("datatype : {0}", a.datatype);
+                    //    Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
+                     
+                    //    Console.WriteLine("Filename : {0}", fname);
+                    //    Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
+                    //    if(RECORD.ffr_list[idx].Flag[0] == '8')
+                    //    {
+                    //        // TODO :  parameter로 path에 적절한 path 넘겨주기
+                    //        Extent.write_extent(a, new_extent.buf, new_extent.Count, ""); 
+                    //    }
+                    //    else if(RECORD.ffr_list[idx].Flag[0] == '4')
+                    //    {
+                    //        //TODO : Create directory
+                    //    }
+                        
+                    //}
 
 
                 }

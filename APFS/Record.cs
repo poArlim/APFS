@@ -133,7 +133,7 @@ namespace APFS
  
     public class FileFolderRecord // 0x30
     {
-        
+        public string path;
         //key section
 
         //data section 
