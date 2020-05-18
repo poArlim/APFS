@@ -13,7 +13,7 @@ namespace APFS
 
         static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
             {
                 //MSB
                 CSB.TotalSize = (UInt64)fs.Length;
@@ -24,13 +24,13 @@ namespace APFS
                 CSBD csbd = CSBD.init_csbd(fs, 0);
                 csbd.records = new CSBD_recode[csbd.RecordNum];
                 UInt64 start_addr = csbd.CSBD_Address + 40; //40 = 0x28
-                for (UInt16 i = 0; i < csbd.RecordNum; i++)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine($"record[{i}]");
-                    csbd.records[i] = CSBD_recode.init_csbd_recode(fs, start_addr);
-                    start_addr += 40; // 40 = 0x28
-                }
+                //for (UInt16 i = 0; i < csbd.RecordNum; i++)
+                //{
+                //    Console.WriteLine();
+                //    Console.WriteLine($"record[{i}]");
+                //    csbd.records[i] = CSBD_recode.init_csbd_recode(fs, start_addr);
+                //    start_addr += 40; // 40 = 0x28
+                //}
 
                 ////volume structure
                 UInt64 VRB_addr = msb.VolumesIndexblock;
@@ -113,7 +113,7 @@ namespace APFS
                     q.Enqueue(2);   // NodeID of root node
 
                     ulong old_idx = 2; 
-                    RECORD.ffr_dict[old_idx].path = "/Users/seungbin/Desktop/test";
+                    RECORD.ffr_dict[old_idx].path = "/Users/yang-yejin/Desktop/testhan";
 
                     while (q.Count > 0)
                     {
@@ -134,20 +134,27 @@ namespace APFS
                             {
                                 Console.WriteLine("     NodeID = {0}", new_node_id);
 
-                                if (RECORD.ffr_dict[new_idx].Flag[0] == '8' && RECORD.er_dic.ContainsKey(new_node_id))
+                                if (RECORD.ffr_dict[new_idx].Flag[0] == '8')
                                 {
+                                    if (RECORD.er_dic.ContainsKey(new_node_id))
+                                    {
+                                        Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[new_node_id].ExtentStartBlockNum), (long)RECORD.er_dic[new_node_id].ExtentLength);
+                                        Extent.write_extent(new_node_id, new_extent.buf, new_extent.Count, new_path);
+                                    }
+                                    else
+                                    {
+                                        File.Create(new_path);
+                                    }
 
-                                    Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[new_node_id].ExtentStartBlockNum), (long)RECORD.er_dic[new_node_id].ExtentLength);
-                                    Extent.write_extent(new_node_id, new_extent.buf, new_extent.Count, new_path);
                                 }
                                 else if (RECORD.ffr_dict[new_idx].Flag[0] == '4')
                                 {
                                     q.Enqueue(new_node_id);
                                     Console.WriteLine("         dir-path : {0}", new_path);
                                     Directory.CreateDirectory(new_path);
-                                    string octal = Utility.StringToOctal(RECORD.ffr_dict[new_idx].Flag);
-                                    Console.WriteLine("file mode : {0}", octal);
-                                    Utility.Exec("chmod " + octal.Substring(3) + " " + new_path);
+                                    //string octal = Utility.StringToOctal(RECORD.ffr_dict[new_idx].Flag);
+                                    //Console.WriteLine("file mode : {0}", octal);
+                                    //Utility.Exec("chmod " + octal.Substring(3) + " " + new_path);
 
                                     //Extent.create_dir(f.NodeID, new_path);
                                 }
