@@ -13,12 +13,14 @@ namespace APFS
 
         static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
             {
                 //MSB
                 CSB.TotalSize = (UInt64)fs.Length;
                 CSB.BlockSize = 4096;
                 CSB msb = CSB.init_csb(fs, 0);
+                List<ulong> newID_collection = new List<ulong>();
+                List<string> path_collection = new List<string>();
 
                 //CSBD
                 CSBD csbd = CSBD.init_csbd(fs, 0);
@@ -113,7 +115,7 @@ namespace APFS
                     q.Enqueue(2);   // NodeID of root node
 
                     ulong old_idx = 2; 
-                    RECORD.ffr_dict[old_idx].path = "/Users/yang-yejin/Desktop/testhan";
+                    RECORD.ffr_dict[old_idx].path = "/Users/seungbin/Desktop/test";
 
                     while (q.Count > 0)
                     {
@@ -152,9 +154,8 @@ namespace APFS
                                     q.Enqueue(new_node_id);
                                     Console.WriteLine("         dir-path : {0}", new_path);
                                     Directory.CreateDirectory(new_path);
-                                    //string octal = Utility.StringToOctal(RECORD.ffr_dict[new_idx].Flag);
-                                    //Console.WriteLine("file mode : {0}", octal);
-                                    //Utility.Exec("chmod " + octal.Substring(3) + " " + new_path);
+                                    newID_collection.Add(new_idx);
+                                    path_collection.Add(new_path);
 
                                     //Extent.create_dir(f.NodeID, new_path);
                                 }
@@ -202,6 +203,13 @@ namespace APFS
                     //}
 
 
+                }
+
+                for (int num = 0; num < newID_collection.Count; num++)
+                {
+                    string octal = Utility.StringToOctal(RECORD.ffr_dict[newID_collection[num]].Flag);
+                    Console.WriteLine("file mode : {0}", octal);
+                    Utility.Exec("chmod " + octal.Substring(3) + " " + path_collection[num]);
                 }
 
                 Console.WriteLine("FIN");
