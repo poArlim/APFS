@@ -53,6 +53,9 @@ namespace APFS
         public static void write_extent(UInt64 NodeID, byte[] buf, long count, String path)
         {
             Console.WriteLine("         path : {0}", path);
+            string octal = Utility.StringToOctal(RECORD.ffr_dict[NodeID].Flag);
+            Console.WriteLine("file mode : {0}", octal);
+
             if (!File.Exists(path))
             {
                 try
@@ -61,6 +64,7 @@ namespace APFS
                     using (FileStream fs = File.Create(path))
                     {
                         fs.Write(buf, 0, (int)count);
+                        
                     }
                 }
                 catch (Exception e)
@@ -73,6 +77,7 @@ namespace APFS
                 Console.WriteLine("*****Already Exist Files, path : {0}", path);
             }
 
+            Utility.Exec("chmod " + octal.Substring(3) + " " + path);
         }
         public static Extent read_extent(FileStream fs, long start_addr, long length)
         {

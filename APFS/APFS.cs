@@ -13,7 +13,7 @@ namespace APFS
 
         static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
             {
                 //MSB
                 CSB.TotalSize = (UInt64)fs.Length;
@@ -113,7 +113,7 @@ namespace APFS
                     q.Enqueue(2);   // NodeID of root node
 
                     ulong old_idx = 2; 
-                    RECORD.ffr_dict[old_idx].path = "/Users/yang-yejin/test/";
+                    RECORD.ffr_dict[old_idx].path = "/Users/seungbin/Desktop/test";
 
                     while (q.Count > 0)
                     {
@@ -145,6 +145,10 @@ namespace APFS
                                     q.Enqueue(new_node_id);
                                     Console.WriteLine("         dir-path : {0}", new_path);
                                     Directory.CreateDirectory(new_path);
+                                    string octal = Utility.StringToOctal(RECORD.ffr_dict[new_idx].Flag);
+                                    Console.WriteLine("file mode : {0}", octal);
+                                    Utility.Exec("chmod " + octal.Substring(3) + " " + new_path);
+
                                     //Extent.create_dir(f.NodeID, new_path);
                                 }
                             }
