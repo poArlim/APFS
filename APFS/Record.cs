@@ -7,8 +7,9 @@ namespace APFS
     public class RECORD
     {
         public static Dictionary<UInt64, List<UInt64>> parent_node_dic = new Dictionary<UInt64, List<UInt64>>() ; 
-        public static Dictionary<UInt64, int> NodeID_ffrIdx_dic = new Dictionary<UInt64, int>(); //NodeID, Idx
-        public static List<FileFolderRecord> ffr_list = new List<FileFolderRecord>();
+        
+        public static Dictionary<UInt64, FileFolderRecord> ffr_dict = new Dictionary<UInt64, FileFolderRecord>();
+        
         public static List<NameAttribute> na_list = new List<NameAttribute>();
         public static List<ExtentStatus> es_list = new List<ExtentStatus>();
         public static List<KeyRecord> kr_list = new List<KeyRecord>();
@@ -18,7 +19,7 @@ namespace APFS
         //{
         //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
         //    {
-        //        CSB.TotalSize = (UInt64)fs.Length
+        //        CSB.TotalSize = (UInt64)fs.Length; 
         //        CSB.BlockSize = 4096;
         //        CSB.MSB_Address = 20480;
 
@@ -26,16 +27,11 @@ namespace APFS
         //        init_btln(fs, 331);
         //        init_btln(fs, 325);
 
-        //        foreach( KeyValuePair<UInt64, List<UInt64>> kvp in parent_node_dic)
+
+        //        foreach (KeyValuePair<UInt64, FileFolderRecord> kvp in ffr_dict)
         //        {
-        //            List<UInt64> node_list = kvp.Value;
-        //            Console.WriteLine("\n===== key = {0} =====", kvp.Key);
-        //            foreach(UInt64 n in node_list)
-        //            {
-        //                int idx = NodeID_ffrIdx_dic[n];
-        //                String fname = new string(ffr_list[idx].FileName, 0, ffr_list[idx].FileName.Length - 1);
-        //                Console.WriteLine("nodeID : {0}, name : {1}", n, fname); 
-        //            }
+        //            String fname = new string(kvp.Value.FileName, 0, kvp.Value.FileName.Length - 1);
+        //            Console.WriteLine("NodeID : {0}, ----- {1}", kvp.Key, fname);
         //        }
 
         //    }
@@ -69,11 +65,20 @@ namespace APFS
                         try
                         {
                             f = FileFolderRecord.get(table_info[i].KeySection, table_info[i].DataSection);
-                            NodeID_ffrIdx_dic.Add(f.NodeID, ffr_list.Count);
-                            String fname = new string(f.FileName, 0, f.FileName.Length - 1);
-                           // Console.WriteLine("Node ID : {0}, ParentID : {1}, Filename : {2}, Flag : {3} ", f.NodeID, f.ParentID, fname, f.Flag ); 
-                            RECORD.ffr_list.Add(f);
 
+                          
+                            String fname = new string(f.FileName, 0, f.FileName.Length - 1);
+                            // Console.WriteLine("Node ID : {0}, ParentID : {1}, Filename : {2}, Flag : {3} ", f.NodeID, f.ParentID, fname, f.Flag ); 
+                            if (!ffr_dict.ContainsKey(f.NodeID))
+                            {
+                                ffr_dict.Add(f.NodeID, f); 
+                            }
+                            else
+                            {
+                                ffr_dict[f.NodeID] = f; 
+                            }
+
+                       
                             if (!parent_node_dic.ContainsKey(f.ParentID))
                             {
                                 List<UInt64> node_list = new List<UInt64>();
@@ -83,7 +88,6 @@ namespace APFS
                             else
                             {
                                 parent_node_dic[f.ParentID].Add(f.NodeID); 
-
                             }
                         }
                         catch (ArgumentException)

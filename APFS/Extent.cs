@@ -49,20 +49,9 @@ namespace APFS
 
         public byte[] buf;
 
-        public static void create_dir(UInt64 NodeID, String path)
-        {
-            int idx = RECORD.NodeID_ffrIdx_dic[NodeID];
-            //String folder_name = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
-            //path = Path.Combine(path, folder_name);
-            Console.WriteLine("dir-path : {0}", path);
-            Directory.CreateDirectory(path); 
-        }
 
         public static void write_extent(UInt64 NodeID, byte[] buf, long count, String path)
         {
-            int idx = RECORD.NodeID_ffrIdx_dic[NodeID];
-            //String file_name = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
-            //path = Path.Combine(path, file_name);
             Console.WriteLine("         path : {0}", path);
             if (!File.Exists(path))
             {

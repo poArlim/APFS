@@ -13,7 +13,7 @@ namespace APFS
 
         static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/im-aron/Documents/한컴GMD/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
             {
                 //MSB
                 CSB.TotalSize = (UInt64)fs.Length;
@@ -95,18 +95,16 @@ namespace APFS
                         }
 
                     }
-
-                    foreach (FileFolderRecord f in RECORD.ffr_list)
+                    foreach (KeyValuePair<UInt64, List<UInt64>> kvp in RECORD.parent_node_dic)
                     {
-                        int idx = RECORD.NodeID_ffrIdx_dic[f.NodeID];
-                        Console.WriteLine("NodeID :{0} == {1} ", f.NodeID, RECORD.ffr_list[idx].NodeID);
-                    }
-                    Console.WriteLine();
-
-
-                    foreach(KeyValuePair<UInt64, ExtentRecord> e in RECORD.er_dic)
-                    {
-                        Console.WriteLine("NodeID = {0}, extent_NodeID = {1}", e.Key, e.Value.NodeID);
+                        List<UInt64> l = kvp.Value; 
+                        
+                        Console.WriteLine("Key : {0},=======", kvp.Key);
+                        foreach(UInt64 nid in l)
+                        {
+                            String fname = new string(RECORD.ffr_dict[nid].FileName, 0, RECORD.ffr_dict[nid].FileName.Length - 1);
+                            Console.WriteLine("NodeID : {0}, -- {1}", nid, fname); 
+                        }
                     }
 
                     // Queue 만들기
@@ -114,36 +112,37 @@ namespace APFS
 
                     q.Enqueue(2);   // NodeID of root node
 
-                    int old_idx = RECORD.NodeID_ffrIdx_dic[2];
-                    RECORD.ffr_list[old_idx].path = "/Users/im-aron/Documents/4-1/Capstone/APFS/APFS/bin/Debug";
+                    ulong old_idx = 2; 
+                    RECORD.ffr_dict[old_idx].path = "/Users/yang-yejin/test/";
 
-                    while(q.Count > 0)
+                    while (q.Count > 0)
                     {
                         UInt64 parent_node_id = q.Dequeue();
-                        old_idx = RECORD.NodeID_ffrIdx_dic[parent_node_id];
-                        String parent_path = RECORD.ffr_list[old_idx].path;
+                        old_idx = parent_node_id; 
+                        String parent_path = RECORD.ffr_dict[old_idx].path;
 
                         Console.WriteLine("ParentID = {0}", parent_node_id);
-                        foreach (FileFolderRecord f in RECORD.ffr_list)
+                        if (!RECORD.parent_node_dic.ContainsKey(parent_node_id)) continue; 
+                        foreach (UInt64 new_node_id in RECORD.parent_node_dic[parent_node_id])
                         {
-                            int new_idx = RECORD.NodeID_ffrIdx_dic[f.NodeID];
-                            String new_name = new string(RECORD.ffr_list[new_idx].FileName, 0, RECORD.ffr_list[new_idx].FileName.Length - 1);
+                            ulong new_idx = new_node_id; 
+                            String new_name = new string(RECORD.ffr_dict[new_idx].FileName, 0, RECORD.ffr_dict[new_idx].FileName.Length - 1);
                             String new_path = parent_path + "/" + new_name;
-                            RECORD.ffr_list[new_idx].path = new_path;
+                            RECORD.ffr_dict[new_idx].path = new_path;
 
-                            if(RECORD.ffr_list[new_idx].ParentID == RECORD.ffr_list[old_idx].NodeID)
+                            if (RECORD.ffr_dict[new_idx].ParentID == RECORD.ffr_dict[old_idx].NodeID)
                             {
-                                Console.WriteLine("     NodeID = {0}", f.NodeID);
+                                Console.WriteLine("     NodeID = {0}", new_node_id);
 
-                                if (RECORD.ffr_list[new_idx].Flag[0] == '8')
+                                if (RECORD.ffr_dict[new_idx].Flag[0] == '8' && RECORD.er_dic.ContainsKey(new_node_id))
                                 {
-                                    
-                                    Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[f.NodeID].ExtentStartBlockNum), (long)RECORD.er_dic[f.NodeID].ExtentLength);
-                                    Extent.write_extent(f.NodeID, new_extent.buf, new_extent.Count, new_path);
+
+                                    Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[new_node_id].ExtentStartBlockNum), (long)RECORD.er_dic[new_node_id].ExtentLength);
+                                    Extent.write_extent(new_node_id, new_extent.buf, new_extent.Count, new_path);
                                 }
-                                else if(RECORD.ffr_list[new_idx].Flag[0] == '4')
+                                else if (RECORD.ffr_dict[new_idx].Flag[0] == '4')
                                 {
-                                    q.Enqueue(f.NodeID);
+                                    q.Enqueue(new_node_id);
                                     Console.WriteLine("         dir-path : {0}", new_path);
                                     Directory.CreateDirectory(new_path);
                                     //Extent.create_dir(f.NodeID, new_path);
@@ -170,13 +169,13 @@ namespace APFS
                     //    int idx = RECORD.NodeID_ffrIdx_dic[a.NodeID];
                     //    String fname = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
                     //    Console.WriteLine("\n\n{0}", n++);
-                        
+
                     //    Console.WriteLine("NodeID : {0}", a.NodeID);
                     //    Console.WriteLine("Flag : {0}", RECORD.ffr_list[idx].Flag[0]);
                     //    Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
                     //    Console.WriteLine("datatype : {0}", a.datatype);
                     //    Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
-                     
+
                     //    Console.WriteLine("Filename : {0}", fname);
                     //    Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
                     //    if(RECORD.ffr_list[idx].Flag[0] == '8')
@@ -188,7 +187,7 @@ namespace APFS
                     //    {
                     //        //TODO : Create directory
                     //    }
-                        
+
                     //}
 
 
@@ -281,7 +280,7 @@ namespace APFS
         private Node expand(Node from)
         {
             // 현재 Node의 데이터를 byte배열로 읽어들여서 DirEntryBlock으로 해석한다.
-            var buffer = new byte[from.Data.Length];  
+            var buffer = new byte[from.Data.Length];
             from.Data.Read(buffer, 0, buffer.Length);
 
             var node = new DirEntryBlock(buffer);
