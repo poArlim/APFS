@@ -43,8 +43,6 @@ namespace APFS
         public static List<CSB> get_csb_list(FileStream fs)
         {
             List<CSB> csb_list = new List<CSB>(); 
-            CSB.TotalSize = (UInt64)fs.Length;
-            CSB.BlockSize = 4096;
             CSB msb = CSB.init_csb(fs, 0);
             //Console.WriteLine("msb - checkpoint : {0}", msb.CSB_Checkpoint);
             //Console.WriteLine("msb - OldestCSBD : {0}", msb.OldestCSBD);

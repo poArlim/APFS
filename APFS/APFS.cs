@@ -11,21 +11,37 @@ namespace APFS
 
         public bool IsValid;
 
+
         static void Main()
         {
-            using (FileStream fs = new FileStream(@"/Users/seungbin/Downloads/han.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/newhan.dmg", FileMode.Open))
             {
-                //MSB
+
                 CSB.TotalSize = (UInt64)fs.Length;
                 CSB.BlockSize = 4096;
-                CSB msb = CSB.init_csb(fs, 0);
+
+                List<CSB> csb_list = CSB.get_csb_list(fs);
+                CSB msb = csb_list[csb_list.Count - 1];
+                init_APFS(fs, msb);
+                //이전 csb로 init_APFS하는 법 : csb_list index : 0 ~ csb_list.count-1중 아무 csb나 선택해서 init_APFS에 넣csb_list[csb_list.Count - 1]
+                // init_APFS(fs, csb_list[0]); // 첫번째 checkpoint로 하는 예
+
+
+            }
+
+        }
+        public static void init_APFS(FileStream fs, CSB csb)
+            {
+                CSB.TotalSize = (UInt64)fs.Length;
+                CSB.BlockSize = 4096;
+                
                 List<ulong> newID_collection = new List<ulong>();
                 List<string> path_collection = new List<string>();
 
                 //CSBD
-                CSBD csbd = CSBD.init_csbd(fs, 0);
-                csbd.records = new CSBD_recode[csbd.RecordNum];
-                UInt64 start_addr = csbd.CSBD_Address + 40; //40 = 0x28
+                //CSBD csbd = CSBD.init_csbd(fs, 0);
+                //csbd.records = new CSBD_recode[csbd.RecordNum];
+                //UInt64 start_addr = csbd.CSBD_Address + 40; //40 = 0x28
                 //for (UInt16 i = 0; i < csbd.RecordNum; i++)
                 //{
                 //    Console.WriteLine();
@@ -35,7 +51,7 @@ namespace APFS
                 //}
 
                 ////volume structure
-                UInt64 VRB_addr = msb.VolumesIndexblock;
+                UInt64 VRB_addr = csb.VolumesIndexblock;
                 Console.WriteLine();
                 Console.WriteLine("VRB address : {0}", VRB_addr);
 
@@ -99,13 +115,13 @@ namespace APFS
                     }
                     foreach (KeyValuePair<UInt64, List<UInt64>> kvp in RECORD.parent_node_dic)
                     {
-                        List<UInt64> l = kvp.Value; 
-                        
+                        List<UInt64> l = kvp.Value;
+
                         Console.WriteLine("Key : {0},=======", kvp.Key);
-                        foreach(UInt64 nid in l)
+                        foreach (UInt64 nid in l)
                         {
                             String fname = new string(RECORD.ffr_dict[nid].FileName, 0, RECORD.ffr_dict[nid].FileName.Length - 1);
-                            Console.WriteLine("NodeID : {0}, -- {1}", nid, fname); 
+                            Console.WriteLine("NodeID : {0}, {1}", nid, fname);
                         }
                     }
 
@@ -114,20 +130,20 @@ namespace APFS
 
                     q.Enqueue(2);   // NodeID of root node
 
-                    ulong old_idx = 2; 
-                    RECORD.ffr_dict[old_idx].path = "/Users/seungbin/Desktop/test";
+                    ulong old_idx = 2;
+                    RECORD.ffr_dict[old_idx].path = "/Users/yang-yejin/test";
 
                     while (q.Count > 0)
                     {
                         UInt64 parent_node_id = q.Dequeue();
-                        old_idx = parent_node_id; 
+                        old_idx = parent_node_id;
                         String parent_path = RECORD.ffr_dict[old_idx].path;
 
                         Console.WriteLine("ParentID = {0}", parent_node_id);
-                        if (!RECORD.parent_node_dic.ContainsKey(parent_node_id)) continue; 
+                        if (!RECORD.parent_node_dic.ContainsKey(parent_node_id)) continue;
                         foreach (UInt64 new_node_id in RECORD.parent_node_dic[parent_node_id])
                         {
-                            ulong new_idx = new_node_id; 
+                            ulong new_idx = new_node_id;
                             String new_name = new string(RECORD.ffr_dict[new_idx].FileName, 0, RECORD.ffr_dict[new_idx].FileName.Length - 1);
                             String new_path = parent_path + "/" + new_name;
                             RECORD.ffr_dict[new_idx].path = new_path;
@@ -217,9 +233,7 @@ namespace APFS
 
             }
 
-        }
-
-        public APFS(Stream stream, long startAddress = 0)
+            public APFS(Stream stream, long startAddress = 0)
         {
             IsValid = initApfs(stream);
 
