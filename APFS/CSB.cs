@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+using System.Collections.Generic;
 namespace APFS
 {
 
@@ -19,7 +19,7 @@ namespace APFS
 
         public UInt64 NextCSB_ID;
         public UInt32 BaseBlock;
-        public UInt32 PreviousCSBD;
+        public UInt32 NextCSBD;
         public UInt32 OriginalCSBD;
         public UInt32 OldestCSBD;
 
@@ -27,10 +27,47 @@ namespace APFS
         public UInt32 VolumesMaxNumber;
         public UInt64 VolumeID_List;
 
+        //public static void Main()
+        //{
+        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/newhan.dmg", FileMode.Open))
+        //    {
+        //        List<CSB> csb_list = get_csb_list(fs);
+        //        foreach (CSB c in csb_list)
+        //        {
+        //            Console.WriteLine("Chckpoint : {0}", c.CSB_Checkpoint);
+        //        }
+        //        Console.WriteLine("Fin");
+        //    }
+        //}
 
+        public static List<CSB> get_csb_list(FileStream fs)
+        {
+            List<CSB> csb_list = new List<CSB>(); 
+            CSB.TotalSize = (UInt64)fs.Length;
+            CSB.BlockSize = 4096;
+            CSB msb = CSB.init_csb(fs, 0);
+            //Console.WriteLine("msb - checkpoint : {0}", msb.CSB_Checkpoint);
+            //Console.WriteLine("msb - OldestCSBD : {0}", msb.OldestCSBD);
+            //Console.WriteLine("msb - NextCSBD : {0}", msb.NextCSBD);
+            UInt64 next_csb_addr = Utility.get_address(msb.OldestCSBD) + CSB.BlockSize;
+            while (true) {
+                
+                CSB csb = init_csb(fs, next_csb_addr);
+                //Console.WriteLine("=======csb Address : {0}", csb.CSB_Address);
+                //Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
+                //Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
+                //Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
+                csb_list.Add(csb);
+                next_csb_addr = Utility.get_address(csb.NextCSBD) + CSB.BlockSize;
+                if (csb.NextCSBD == msb.OriginalCSBD) break; 
+            }
+            csb_list.Add(msb);
+            return csb_list;
+        }
 
         public static CSB init_csb(FileStream fs, UInt64 start_addr)
         {
+            
             CSB csb = new CSB();
             UInt64 block_addr;
             int n;
@@ -84,7 +121,7 @@ namespace APFS
             fs.Seek((Int64)block_addr + Convert.ToInt64("0x80", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            csb.PreviousCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) + csb.BaseBlock;
+            csb.NextCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) + csb.BaseBlock;
 
             fs.Seek((Int64)block_addr + Convert.ToInt64("0x88", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 4);
@@ -93,7 +130,7 @@ namespace APFS
 
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            csb.OldestCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) + csb.BaseBlock;
+            csb.OldestCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) - 1; 
 
             fs.Seek((Int64)block_addr + Convert.ToInt64("0xA0", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 8);
@@ -111,24 +148,24 @@ namespace APFS
 
 
 
-            Console.WriteLine("CSB_Address :{0}", csb.CSB_Address);
-            Console.WriteLine("BlockChecksum :{0}", csb.BlockChecksum);
-            Console.WriteLine("BlockID :{0}", csb.BlockID);
-            Console.WriteLine("CSB_Checkpoint :{0}", csb.CSB_Checkpoint);
-            Console.WriteLine("BlockSize :{0} ", CSB.BlockSize);
-            //string s = new string(csb.CSB_Magic);
-            //Console.WriteLine("-->MAGIC : {0}", s);
+            //Console.WriteLine("CSB_Address :{0}", csb.CSB_Address);
+            //Console.WriteLine("BlockChecksum :{0}", csb.BlockChecksum);
+            //Console.WriteLine("BlockID :{0}", csb.BlockID);
+            //Console.WriteLine("CSB_Checkpoint :{0}", csb.CSB_Checkpoint);
+            //Console.WriteLine("BlockSize :{0} ", CSB.BlockSize);
+            ////string s = new string(csb.CSB_Magic);
+            ////Console.WriteLine("-->MAGIC : {0}", s);
 
-            Console.WriteLine("TotalBlocks :{0}", csb.TotalBlocks);
-            Console.WriteLine("NextCSB_ID :{0}", csb.NextCSB_ID);
-            Console.WriteLine("BaseBlock :{0}", csb.BaseBlock);
-            Console.WriteLine("PreviousCSBD :{0}", csb.PreviousCSBD);
-            Console.WriteLine("OriginalCSBD :{0} ", csb.OriginalCSBD);
-            Console.WriteLine("OldestCSBD :{0} ", csb.OldestCSBD);
+            //Console.WriteLine("TotalBlocks :{0}", csb.TotalBlocks);
+            //Console.WriteLine("NextCSB_ID :{0}", csb.NextCSB_ID);
+            //Console.WriteLine("BaseBlock :{0}", csb.BaseBlock);
+            //Console.WriteLine("NextCSBD :{0}", csb.NextCSBD);
+            //Console.WriteLine("OriginalCSBD :{0} ", csb.OriginalCSBD);
+            //Console.WriteLine("OldestCSBD :{0} ", csb.OldestCSBD);
 
-            Console.WriteLine("VolumesIndexblock :{0}", csb.VolumesIndexblock);
-            Console.WriteLine("VolumesMaxNumber :{0} ", csb.VolumesMaxNumber);
-            Console.WriteLine("VolumeID_List :{0} ", csb.VolumeID_List);
+            //Console.WriteLine("VolumesIndexblock :{0}", csb.VolumesIndexblock);
+            //Console.WriteLine("VolumesMaxNumber :{0} ", csb.VolumesMaxNumber);
+            //Console.WriteLine("VolumeID_List :{0} ", csb.VolumeID_List);
 
 
 
