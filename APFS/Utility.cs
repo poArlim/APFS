@@ -101,7 +101,7 @@ namespace APFS
                 }
 
             }
-            return address;
+            return address+start_addr;
         }
 
         public static char[] hex_to_charArray(string hex)
