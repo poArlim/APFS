@@ -54,7 +54,7 @@ namespace APFS
         {
             Console.WriteLine("         path : {0}", path);
             string octal = Utility.StringToOctal(RECORD.ffr_dict[NodeID].Flag);
-            Console.WriteLine("file mode : {0}", octal);
+         //   Console.WriteLine("file mode : {0}", octal);
 
             if (!File.Exists(path))
             {
@@ -66,6 +66,7 @@ namespace APFS
                         fs.Write(buf, 0, (int)count);
                         
                     }
+                    Utility.Exec("chmod " + octal.Substring(3) + " " + path);
                 }
                 catch (Exception e)
                 {
@@ -77,7 +78,7 @@ namespace APFS
                 Console.WriteLine("*****Already Exist Files, path : {0}", path);
             }
 
-            Utility.Exec("chmod " + octal.Substring(3) + " " + path);
+            
         }
         public static Extent read_extent(FileStream fs, long start_addr, long length)
         {
