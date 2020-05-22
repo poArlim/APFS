@@ -40,6 +40,7 @@ namespace APFS
             }
 
         }
+
         public static void init_APFS(FileStream fs, CSB csb)
             {
                 CSB.TotalSize = (UInt64)fs.Length;
@@ -169,7 +170,7 @@ namespace APFS
 
                             if (RECORD.ffr_dict[new_idx].ParentID == RECORD.ffr_dict[old_idx].NodeID)
                             {
-                                Console.WriteLine("     NodeID = {0}", new_node_id);
+                                Console.WriteLine("     NodeID = {0}, path : {1}", new_node_id, new_path);
 
                                 if (RECORD.ffr_dict[new_idx].Flag[0] == '8')
                                 {
@@ -188,7 +189,7 @@ namespace APFS
                                 else if (RECORD.ffr_dict[new_idx].Flag[0] == '4')
                                 {
                                     q.Enqueue(new_node_id);
-                                    Console.WriteLine("         dir-path : {0}", new_path);
+                                    
                                     Directory.CreateDirectory(new_path);
                                 
                                     string octal = Utility.StringToOctal(RECORD.ffr_dict[new_idx].Flag);
@@ -205,56 +206,11 @@ namespace APFS
 
 
                 }
-
-
-            
             Console.WriteLine("FIN");
             
-            Console.WriteLine(convertEncoding("path/가나다.txt"));
-            Console.WriteLine(convertCheck("path/가나다.txt"));
           
         }
-        public static string convertEncoding(string src)
-        {
-            string OrgString = src;
-            // 문자열 을 Unicode 변환
-            //  Encoding encKr = Encoding.UTF8;
-            Encoding encKr = Encoding.GetEncoding(65001); 
-            byte[] convertByte = encKr.GetBytes(OrgString);
 
-            for (int i = 0; i < convertByte.Length; i++)
-            {
-                Console.Write(convertByte[i].ToString() + " // ");
-            }
-            // Unicode 를 string 으로 변환
-            OrgString = encKr.GetString(convertByte);
-            Console.WriteLine();
-            Console.WriteLine(OrgString);
-            System.Diagnostics.Debug.WriteLine(OrgString); 
-            return OrgString; 
-
-        }
-        public static String convertCheck(string str)
-        {
-            Encoding encKr = Encoding.GetEncoding(65001);
-            EncodingInfo[] encods = Encoding.GetEncodings();
-            Encoding destEnc = Encoding.UTF8;
-            byte[] sorceBytes = encKr.GetBytes(str);
-           // byte[] encBytes = Encoding.Convert(encKr, destEnc, sorceBytes);
-            
-            System.Diagnostics.Debug.WriteLine(string.Format("{0}({1}) : {2} ", encKr.EncodingName, encKr.BodyName, destEnc.GetString(sorceBytes)));
-            return destEnc.GetString(sorceBytes); 
-            //foreach (EncodingInfo ec in encods)
-            //{
-
-            //    Encoding enc = ec.GetEncoding();
-            //    byte[] sorceBytes = enc.GetBytes(str);
-            //    byte[] encBytes = Encoding.Convert(encKr, destEnc, sorceBytes);
-
-            //    System.Diagnostics.Debug.WriteLine(string.Format("{0}({1}) : {2} ", enc.EncodingName, enc.BodyName, destEnc.GetString(encBytes)));
-
-            //}
-        }
         public APFS(Stream stream, long startAddress = 0)
         {
             IsValid = initApfs(stream);

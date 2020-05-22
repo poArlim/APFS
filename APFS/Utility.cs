@@ -115,8 +115,9 @@ namespace APFS
                 raw[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
             }
 
-            return System.Text.Encoding.ASCII.GetString(raw).ToCharArray();
+            return System.Text.Encoding.UTF8.GetString(raw).ToCharArray();
         }
+
 
         public static string StringToOctal(string data)
         {
