@@ -2,6 +2,7 @@
 using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Text; 
 
 namespace APFS
 {
@@ -12,16 +13,25 @@ namespace APFS
         public bool IsValid;
 
 
-        static void Main()
+
+            static void Main()
         {
+
+
             using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/newhan.dmg", FileMode.Open))
             {
+
 
                 CSB.TotalSize = (UInt64)fs.Length;
                 CSB.BlockSize = 4096;
 
                 List<CSB> csb_list = CSB.get_csb_list(fs);
                 CSB msb = csb_list[csb_list.Count - 1];
+                foreach (CSB c in csb_list)
+                {
+                    Console.WriteLine("Chckpoint : {0}", c.CSB_Checkpoint);
+                }
+
                 init_APFS(fs, msb);
                 //이전 csb로 init_APFS하는 법 : csb_list index : 0 ~ csb_list.count-1중 아무 csb나 선택해서 init_APFS에 넣csb_list[csb_list.Count - 1]
                 // init_APFS(fs, csb_list[0]); // 첫번째 checkpoint로 하는 예
@@ -62,12 +72,12 @@ namespace APFS
 
                 Table VB_h;
                 VB_h = Table.get_table_header(fs, VB_addr);
-                Console.WriteLine("VB check_point : {0}", VB_h.check_point);
-                Console.WriteLine("VB table_type : {0}", VB_h.table_type);
-                Console.WriteLine("VB record_num : {0}", VB_h.record_num);
-                Console.WriteLine("VB len_record_def : {0}", VB_h.len_record_def);
-                Console.WriteLine("VB len_key_section : {0}", VB_h.len_key_section);
-                Console.WriteLine("VB gap_key_data : {0}", VB_h.gap_key_data);
+                //Console.WriteLine("VB check_point : {0}", VB_h.check_point);
+                //Console.WriteLine("VB table_type : {0}", VB_h.table_type);
+                //Console.WriteLine("VB record_num : {0}", VB_h.record_num);
+                //Console.WriteLine("VB len_record_def : {0}", VB_h.len_record_def);
+                //Console.WriteLine("VB len_key_section : {0}", VB_h.len_key_section);
+                //Console.WriteLine("VB gap_key_data : {0}", VB_h.gap_key_data);
 
                 //VB record
                 Console.WriteLine();
@@ -113,20 +123,32 @@ namespace APFS
                         }
 
                     }
-                    foreach (KeyValuePair<UInt64, List<UInt64>> kvp in RECORD.parent_node_dic)
-                    {
-                        List<UInt64> l = kvp.Value;
 
-                        Console.WriteLine("Key : {0},=======", kvp.Key);
-                        foreach (UInt64 nid in l)
-                        {
-                            String fname = new string(RECORD.ffr_dict[nid].FileName, 0, RECORD.ffr_dict[nid].FileName.Length - 1);
-                            Console.WriteLine("NodeID : {0}, {1}", nid, fname);
-                        }
-                    }
 
-                    // Queue 만들기
-                    Queue<UInt64> q = new Queue<UInt64>();
+                //foreach (KeyValuePair<UInt64, List<UInt64>> kvp in RECORD.parent_node_dic)
+                //{
+                //    List<UInt64> l = kvp.Value;
+                //    String name = "";
+                //    try
+                //    {
+                //        name = new string(RECORD.ffr_dict[kvp.Key].FileName, 0, RECORD.ffr_dict[kvp.Key].FileName.Length - 1);
+                //    }
+                //    catch (Exception e)
+                //    {
+                //        name = "";
+                //    }
+
+
+                //    Console.WriteLine("====Key : {0}, {1}=======", kvp.Key, name);
+                //    foreach (UInt64 nid in l)
+                //    {
+                //        String fname = new string(RECORD.ffr_dict[nid].FileName, 0, RECORD.ffr_dict[nid].FileName.Length - 1);
+                //        Console.WriteLine("NodeID : {0}, {1}", nid, fname);
+                //    }
+                //}
+
+                // Queue 만들기
+                Queue<UInt64> q = new Queue<UInt64>();
 
                     q.Enqueue(2);   // NodeID of root node
 
@@ -145,7 +167,7 @@ namespace APFS
                         {
                             ulong new_idx = new_node_id;
                             String new_name = new string(RECORD.ffr_dict[new_idx].FileName, 0, RECORD.ffr_dict[new_idx].FileName.Length - 1);
-                            String new_path = parent_path + "/" + new_name;
+                            String new_path = Path.Combine(parent_path, new_name); 
                             RECORD.ffr_dict[new_idx].path = new_path;
 
                             if (RECORD.ffr_dict[new_idx].ParentID == RECORD.ffr_dict[old_idx].NodeID)
@@ -161,7 +183,8 @@ namespace APFS
                                     }
                                     else
                                     {
-                                        File.Create(new_path);
+                                    
+                                    File.Create(new_path);
                                     }
 
                                 }
@@ -169,6 +192,7 @@ namespace APFS
                                 {
                                     q.Enqueue(new_node_id);
                                     Console.WriteLine("         dir-path : {0}", new_path);
+                                    
                                     Directory.CreateDirectory(new_path);
                                     newID_collection.Add(new_idx);
                                     path_collection.Add(new_path);
@@ -182,43 +206,6 @@ namespace APFS
                     Console.WriteLine();
 
 
-                    // Queue 끝
-
-                    //Extent
-                    //Console.WriteLine();
-                    //UInt64 Extent_addr = Table.get_block_address(fs, VBrecords[0].BlockNum, "0x90");
-                    //Console.WriteLine("Extent : {0}", Extent_addr);
-
-                    //MetaExtent.init(fs, Extent_addr);
-
-                    //n = 0;
-                    //foreach (MetaExtent a in MetaExtent.edbList)
-                    //{
-                    //    int idx = RECORD.NodeID_ffrIdx_dic[a.NodeID];
-                    //    String fname = new string(RECORD.ffr_list[idx].FileName, 0, RECORD.ffr_list[idx].FileName.Length - 1);
-                    //    Console.WriteLine("\n\n{0}", n++);
-
-                    //    Console.WriteLine("NodeID : {0}", a.NodeID);
-                    //    Console.WriteLine("Flag : {0}", RECORD.ffr_list[idx].Flag[0]);
-                    //    Console.WriteLine("block_num_start : {0}, {1}", a.block_num_start, Utility.get_address(a.block_num_start));
-                    //    Console.WriteLine("datatype : {0}", a.datatype);
-                    //    Console.WriteLine("blocks_in_extent : {0}", a.blocks_in_extent);
-
-                    //    Console.WriteLine("Filename : {0}", fname);
-                    //    Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(a.block_num_start), (long)a.blocks_in_extent * CSB.BlockSize);
-                    //    if(RECORD.ffr_list[idx].Flag[0] == '8')
-                    //    {
-                    //        // TODO :  parameter로 path에 적절한 path 넘겨주기
-                    //        Extent.write_extent(a, new_extent.buf, new_extent.Count, ""); 
-                    //    }
-                    //    else if(RECORD.ffr_list[idx].Flag[0] == '4')
-                    //    {
-                    //        //TODO : Create directory
-                    //    }
-
-                    //}
-
-
                 }
 
                 for (int num = 0; num < newID_collection.Count; num++)
@@ -228,12 +215,55 @@ namespace APFS
                     Utility.Exec("chmod " + octal.Substring(3) + " " + path_collection[num]);
                 }
 
-                Console.WriteLine("FIN");
+            
+            Console.WriteLine("FIN");
 
+            Console.WriteLine(convertEncoding("path/가나다.txt"));
+            Console.WriteLine(convertCheck("path/가나다.txt"));
+          
+        }
+        public static string convertEncoding(string src)
+        {
+            string OrgString = src;
+            // 문자열 을 Unicode 변환
+            //  Encoding encKr = Encoding.UTF8;
+            Encoding encKr = Encoding.GetEncoding(65001); 
+            byte[] convertByte = encKr.GetBytes(OrgString);
 
+            for (int i = 0; i < convertByte.Length; i++)
+            {
+                Console.Write(convertByte[i].ToString() + " // ");
             }
+            // Unicode 를 string 으로 변환
+            OrgString = encKr.GetString(convertByte);
+            Console.WriteLine();
+            Console.WriteLine(OrgString);
+            System.Diagnostics.Debug.WriteLine(OrgString); 
+            return OrgString; 
 
-            public APFS(Stream stream, long startAddress = 0)
+        }
+        public static String convertCheck(string str)
+        {
+            Encoding encKr = Encoding.GetEncoding(65001);
+            EncodingInfo[] encods = Encoding.GetEncodings();
+            Encoding destEnc = Encoding.UTF8;
+            byte[] sorceBytes = encKr.GetBytes(str);
+           // byte[] encBytes = Encoding.Convert(encKr, destEnc, sorceBytes);
+            
+            System.Diagnostics.Debug.WriteLine(string.Format("{0}({1}) : {2} ", encKr.EncodingName, encKr.BodyName, destEnc.GetString(sorceBytes)));
+            return destEnc.GetString(sorceBytes); 
+            //foreach (EncodingInfo ec in encods)
+            //{
+
+            //    Encoding enc = ec.GetEncoding();
+            //    byte[] sorceBytes = enc.GetBytes(str);
+            //    byte[] encBytes = Encoding.Convert(encKr, destEnc, sorceBytes);
+
+            //    System.Diagnostics.Debug.WriteLine(string.Format("{0}({1}) : {2} ", enc.EncodingName, enc.BodyName, destEnc.GetString(encBytes)));
+
+            //}
+        }
+        public APFS(Stream stream, long startAddress = 0)
         {
             IsValid = initApfs(stream);
 
