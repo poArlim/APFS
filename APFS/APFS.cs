@@ -2,7 +2,7 @@
 using System.IO;
 using System;
 using System.Collections.Generic;
-using System.Text; 
+using System.Text;
 
 namespace APFS
 {
@@ -13,7 +13,7 @@ namespace APFS
         public bool IsValid;
 
 
-            static void Main()
+        static void Main()
         {
 
 
@@ -24,7 +24,6 @@ namespace APFS
                 CSB.TotalSize = (UInt64)fs.Length;
                 CSB.BlockSize = 4096;
 
-
                 CSB msb = CSB.init_msb(fs);
                 List<CSB> csb_list = CSB.get_csb_list(fs, msb);
                 List<CSB> deleted_csb_list = CSB.get_deleted_csb_list(fs, Utility.get_address(msb.OriginalCSBD) + CSB.BlockSize);
@@ -33,179 +32,459 @@ namespace APFS
                 foreach (CSB c in csb_list)
                 {
                     Console.WriteLine("*************Chckpoint : {0}", c.CSB_Checkpoint);
-                    init_APFS(fs, c);
+
                 }
                 foreach (CSB c in deleted_csb_list)
                 {
                     Console.WriteLine("deleted Chckpoint : {0}", c.CSB_Checkpoint);
-                  
+
                 }
-                //Console.WriteLine("-------------------");
+                //bool find = false;
+
                 //foreach (CSB c in csb_list)
                 //{
-                //    Console.WriteLine("*************Chckpoint : {0}", c.CSB_Checkpoint);
-                //    init_APFS(fs, c);
+                //    Console.WriteLine("=========Chckpoint : {0}", c.CSB_Checkpoint);
+                //    if (restore_folder(fs, c, "Group28"))
+                //    {
+                //        find = true;
+                //        break;
+                //    }
                 //}
-                //CSB csb = CSB.init_csb(fs, 209915904);
-                //Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
-                //init_APFS(fs, csb);
-                //init_APFS(fs, msb);
-                //이전 csb로 init_APFS하는 법 : csb_list index : 0 ~ csb_list.count-1중 아무 csb나 선택해서 init_APFS에 넣csb_list[csb_list.Count - 1]
-                // init_APFS(fs, csb_list[0]); // 첫번째 checkpoint로 하는 예
-
+                       
+                //if (!find)
+                //{
+                //    for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
+                //    {
+                //        Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
+                //        if (restore_folder(fs, csb_list[i], "Group28"))
+                //        {
+                //            find = true;
+                //            break;
+                //        }
+                //    }
+                //}
+                //find = false;
+                //for (int i = csb_list.Count - 1; i >= 0; i--)
+                //{
+                //    Console.WriteLine("=========Chckpoint : {0}", csb_list[i].CSB_Checkpoint);
+                //    if (restore_file(fs, csb_list[i], "nn.jpg"))
+                //    {
+                //        find = true;
+                //        break;
+                //    }
+                //}
+                //if (!find)
+                //{
+                //    for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
+                //    {
+                //        Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
+                //        if (restore_file(fs, csb_list[i], "nn.jpg"))
+                //        {
+                //            find = true;
+                //            break;
+                //        }
+                //    }
+                //}
 
             }
 
         }
+        public static bool restore_file(FileStream fs, CSB csb, string search_name)
+        {
+            CSB.TotalSize = (UInt64)fs.Length;
+            CSB.BlockSize = 4096;
 
-        public static void init_APFS(FileStream fs, CSB csb)
+            ////volume structure
+            UInt64 VRB_addr = csb.VolumesIndexblock;
+            Console.WriteLine();
+
+            UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
+
+
+            Table VB_h;
+            VB_h = Table.get_table_header(fs, VB_addr);
+
+
+            //VB record
+            Console.WriteLine();
+            TableType[] VBrecords = Table.save_record(fs, VB_addr, VB_h);
+
+            //VCSB
+            for (int i = 0; i < VB_h.record_num; i++)
             {
-                CSB.TotalSize = (UInt64)fs.Length;
-                CSB.BlockSize = 4096;
-
-                //CSBD
-                //CSBD csbd = CSBD.init_csbd(fs, 0);
-                //csbd.records = new CSBD_recode[csbd.RecordNum];
-                //UInt64 start_addr = csbd.CSBD_Address + 40; //40 = 0x28
-                //for (UInt16 i = 0; i < csbd.RecordNum; i++)
-                //{
-                //    Console.WriteLine();
-                //    Console.WriteLine($"record[{i}]");
-                //    csbd.records[i] = CSBD_recode.init_csbd_recode(fs, start_addr);
-                //    start_addr += 40; // 40 = 0x28
-                //}
-
-                ////volume structure
-                UInt64 VRB_addr = csb.VolumesIndexblock;
                 Console.WriteLine();
-            //    Console.WriteLine("VRB address : {0}", VRB_addr);
+                UInt64 VCSB_addr;
+                VCSB_addr = VBrecords[i].BlockNum;
 
-                UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
-            //    Console.WriteLine("VB address : {0}", VB_addr);
-
-
-
-                Table VB_h;
-                VB_h = Table.get_table_header(fs, VB_addr);
-                //Console.WriteLine("VB check_point : {0}", VB_h.check_point);
-                //Console.WriteLine("VB table_type : {0}", VB_h.table_type);
-                //Console.WriteLine("VB record_num : {0}", VB_h.record_num);
-                //Console.WriteLine("VB len_record_def : {0}", VB_h.len_record_def);
-                //Console.WriteLine("VB len_key_section : {0}", VB_h.len_key_section);
-                //Console.WriteLine("VB gap_key_data : {0}", VB_h.gap_key_data);
-
-                //VB record
+                //각 VCSB
                 Console.WriteLine();
-                TableType[] VBrecords = Table.save_record(fs, VB_addr, VB_h);
+                VCSB vcsb = VCSB.init_vcsb(fs, VCSB_addr);
 
-                //VCSB
-                for (int i = 0; i < VB_h.record_num; i++)
+                //BTCS
+                Console.WriteLine();
+                UInt64 BTCS_addr = vcsb.BTCS;
+                UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
+
+
+                int n = 0;
+
+                List<BTCS> btrn_btln = BTCS.init_btom(fs, BTOM_addr);
+
+                foreach (BTCS b in btrn_btln)
                 {
-                    Console.WriteLine();
-                    UInt64 VCSB_addr;
-                    VCSB_addr = VBrecords[i].BlockNum;
-                   // Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
+                    n++;
 
-                    //각 VCSB
-                    Console.WriteLine();
-                    VCSB vcsb = VCSB.init_vcsb(fs, VCSB_addr);
-
-                    //BTCS
-                    Console.WriteLine();
-                    UInt64 BTCS_addr = vcsb.BTCS;
-                 //   Console.WriteLine("BTCS address : {0}", BTCS_addr);
-
-                    UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
-                 //   Console.WriteLine("BTOM address : {0}", BTOM_addr);
-
-
-                    int n = 0;
-
-                    List<BTCS> btrn_btln = BTCS.init_btom(fs, BTOM_addr);
-
-                    foreach (BTCS b in btrn_btln)
+                    if (n > 1)
                     {
-                        n++;
-                        //Console.WriteLine("btrn_btln : {0} ", n);
-                        //Console.WriteLine("node id : {0}", b.NodeID);
-                        //Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
-                        //Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
 
-                        if (n > 1)
-                        {
-
-                            RECORD.init_btln(fs, b.BlockNum);
-                        }
-
+                        RECORD.init_btln(fs, b.BlockNum);
                     }
+
+                }
 
 
                 // Queue 만들기
                 Queue<UInt64> q = new Queue<UInt64>();
 
-                    q.Enqueue(2);   // NodeID of root node
+                q.Enqueue(2);   // NodeID of root node
 
-                    ulong old_idx = 2;
+                ulong root = 2;
 
-                    if (!RECORD.parent_node_dic.ContainsKey(old_idx)) return; 
-                    RECORD.ffr_dict[old_idx].path = Path.Combine("/Users/yang-yejin/test", csb.CSB_Checkpoint.ToString());
- 
-                
+                if (!RECORD.parent_node_dic.ContainsKey(root)) return false;
+                RECORD.ffr_dict[root].path = Path.Combine("/Users/yang-yejin/test", "restore");
 
-                    while (q.Count > 0)
+
+
+                while (q.Count > 0)
+                {
+                    UInt64 parent_node_id = q.Dequeue();
+                    String parent_path = RECORD.ffr_dict[parent_node_id].path;
+
+                    Console.WriteLine("ParentID = {0}", parent_node_id);
+                    if (!RECORD.parent_node_dic.ContainsKey(parent_node_id)) continue;
+                    foreach (UInt64 child_node_Id in RECORD.parent_node_dic[parent_node_id])
                     {
-                        UInt64 parent_node_id = q.Dequeue();
-                        old_idx = parent_node_id;
-                        String parent_path = RECORD.ffr_dict[old_idx].path;
+                        String fname = new string(RECORD.ffr_dict[child_node_Id].FileName, 0, RECORD.ffr_dict[child_node_Id].FileName.Length - 1);
+                        //String new_path = Path.Combine(parent_path, fname);
+                        RECORD.ffr_dict[child_node_Id].path = parent_path;
 
-                        Console.WriteLine("ParentID = {0}", parent_node_id);
-                        if (!RECORD.parent_node_dic.ContainsKey(parent_node_id)) continue;
-                        foreach (UInt64 new_node_id in RECORD.parent_node_dic[parent_node_id])
+                        Console.WriteLine("     NodeID = {0}, {1}", child_node_Id , fname);
+
+                        if (RECORD.ffr_dict[child_node_Id].Flag[0] == '8' && fname.Equals(search_name))
                         {
-                            ulong new_idx = new_node_id;
-                            String new_name = new string(RECORD.ffr_dict[new_idx].FileName, 0, RECORD.ffr_dict[new_idx].FileName.Length - 1);
-                            String new_path = Path.Combine(parent_path, new_name); 
-                            RECORD.ffr_dict[new_idx].path = new_path;
-
-                            if (RECORD.ffr_dict[new_idx].ParentID == RECORD.ffr_dict[old_idx].NodeID)
+                            String new_path = Path.Combine(parent_path, fname);
+                            if (RECORD.er_dic.ContainsKey(child_node_Id))
                             {
-                                Console.WriteLine("     NodeID = {0}, path : {1}", new_node_id, new_path);
-
-                                if (RECORD.ffr_dict[new_idx].Flag[0] == '8')
+                                Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[child_node_Id].ExtentStartBlockNum), (long)RECORD.er_dic[child_node_Id].ExtentLength);
+                                Extent.write_extent(child_node_Id, new_extent.buf, new_extent.Count, new_path);
+                            }
+                            else
+                            {
+                                if (!File.Exists(new_path))
                                 {
-                                    if (RECORD.er_dic.ContainsKey(new_node_id))
-                                    {
-                                        Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[new_node_id].ExtentStartBlockNum), (long)RECORD.er_dic[new_node_id].ExtentLength);
-                                        Extent.write_extent(new_node_id, new_extent.buf, new_extent.Count, new_path);
-                                    }
-                                    else
-                                    {
-                                        if (!File.Exists(new_path))
-                                        {
-                                            File.Create(new_path);
-                                        }    
-                                    }
-
-                                }
-                                else if (RECORD.ffr_dict[new_idx].Flag[0] == '4')
-                                {
-                                    q.Enqueue(new_node_id);
-                                    
-                                    Directory.CreateDirectory(new_path);
+                                    File.Create(new_path);
                                 }
                             }
-              
+                            Console.WriteLine("make file!!!!!!!!!!!!!"); 
+                            return true; 
 
                         }
+                        else if (RECORD.ffr_dict[child_node_Id].Flag[0] == '4')
+                        {
+                            q.Enqueue(child_node_Id);
+
+                           // Directory.CreateDirectory(new_path);
+                        }
+
+
+
+                    }
+                }
+
+                Console.WriteLine();
+
+
+            }
+            Console.WriteLine("FIN");
+
+            return false; 
+        }
+
+        public static bool restore_folder(FileStream fs, CSB csb, string search_name)
+        {
+            CSB.TotalSize = (UInt64)fs.Length;
+            CSB.BlockSize = 4096;
+            bool restore = false; 
+            ////volume structure
+            UInt64 VRB_addr = csb.VolumesIndexblock;
+            Console.WriteLine();
+
+            UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
+
+
+            Table VB_h;
+            VB_h = Table.get_table_header(fs, VB_addr);
+
+
+            //VB record
+            Console.WriteLine();
+            TableType[] VBrecords = Table.save_record(fs, VB_addr, VB_h);
+
+            //VCSB
+            for (int i = 0; i < VB_h.record_num; i++)
+            {
+                Console.WriteLine();
+                UInt64 VCSB_addr;
+                VCSB_addr = VBrecords[i].BlockNum;
+
+                //각 VCSB
+                Console.WriteLine();
+                VCSB vcsb = VCSB.init_vcsb(fs, VCSB_addr);
+
+                //BTCS
+                Console.WriteLine();
+                UInt64 BTCS_addr = vcsb.BTCS;
+                UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
+
+
+                int n = 0;
+
+                List<BTCS> btrn_btln = BTCS.init_btom(fs, BTOM_addr);
+
+                foreach (BTCS b in btrn_btln)
+                {
+                    n++;
+
+                    if (n > 1)
+                    {
+
+                        RECORD.init_btln(fs, b.BlockNum);
                     }
 
-                    Console.WriteLine();
+                }
 
+
+                // Queue 만들기
+                Queue<UInt64> q = new Queue<UInt64>();
+
+                q.Enqueue(2);   // NodeID of root node
+
+                ulong root = 2;
+
+                if (!RECORD.parent_node_dic.ContainsKey(root)) return false;
+                RECORD.ffr_dict[root].path = Path.Combine("/Users/yang-yejin/test", "restore");
+
+                restore = false; 
+
+                while (q.Count > 0)
+                {
+                    UInt64 parent_node_id = q.Dequeue();
+                    String parent_path = RECORD.ffr_dict[parent_node_id].path;
+
+                    Console.WriteLine("ParentID = {0}", parent_node_id);
+                    if (!RECORD.parent_node_dic.ContainsKey(parent_node_id)) continue;
+                    foreach (UInt64 child_node_Id in RECORD.parent_node_dic[parent_node_id])
+                    {
+                        String fname = new string(RECORD.ffr_dict[child_node_Id].FileName, 0, RECORD.ffr_dict[child_node_Id].FileName.Length - 1);
+                        if(restore)
+                            RECORD.ffr_dict[child_node_Id].path = Path.Combine(parent_path, fname);
+                        else RECORD.ffr_dict[child_node_Id].path = parent_path;
+
+                        Console.WriteLine("     NodeID = {0}, {1}", child_node_Id, fname);
+                        String new_path = RECORD.ffr_dict[child_node_Id].path;
+                        if (restore && RECORD.ffr_dict[child_node_Id].Flag[0] == '8')
+                        {
+                            
+                            if (RECORD.er_dic.ContainsKey(child_node_Id))
+                            {
+                                Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[child_node_Id].ExtentStartBlockNum), (long)RECORD.er_dic[child_node_Id].ExtentLength);
+                                Extent.write_extent(child_node_Id, new_extent.buf, new_extent.Count, new_path);
+                            }
+                            else if (!File.Exists(new_path))
+                            {
+                                File.Create(new_path);
+                               
+                            }
+                        }
+                        if (RECORD.ffr_dict[child_node_Id].Flag[0] == '4')
+                        {
+                            if(!restore && fname.Equals(search_name))
+                            {
+                                Console.WriteLine("---------Find Folder-------");
+                                Directory.CreateDirectory(new_path);
+                                q.Clear();
+                                q.Enqueue(child_node_Id);
+                                restore = true;
+                                break;
+                            }
+                            else
+                            {
+                                Directory.CreateDirectory(new_path);
+                                q.Enqueue(child_node_Id);
+                            }
+                            
+                        }
+                    }
+                     
+                }
+
+                Console.WriteLine();
+
+
+            }
+            Console.WriteLine("FIN");
+
+            return restore; 
+        }
+
+
+
+        public static void init_APFS(FileStream fs, CSB csb)
+        {
+            CSB.TotalSize = (UInt64)fs.Length;
+            CSB.BlockSize = 4096;
+
+            //CSBD
+            //CSBD csbd = CSBD.init_csbd(fs, 0);
+            //csbd.records = new CSBD_recode[csbd.RecordNum];
+            //UInt64 start_addr = csbd.CSBD_Address + 40; //40 = 0x28
+            //for (UInt16 i = 0; i < csbd.RecordNum; i++)
+            //{
+            //    Console.WriteLine();
+            //    Console.WriteLine($"record[{i}]");
+            //    csbd.records[i] = CSBD_recode.init_csbd_recode(fs, start_addr);
+            //    start_addr += 40; // 40 = 0x28
+            //}
+
+            ////volume structure
+            UInt64 VRB_addr = csb.VolumesIndexblock;
+            Console.WriteLine();
+            //    Console.WriteLine("VRB address : {0}", VRB_addr);
+
+            UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
+            //    Console.WriteLine("VB address : {0}", VB_addr);
+
+
+
+            Table VB_h;
+            VB_h = Table.get_table_header(fs, VB_addr);
+            //Console.WriteLine("VB check_point : {0}", VB_h.check_point);
+            //Console.WriteLine("VB table_type : {0}", VB_h.table_type);
+            //Console.WriteLine("VB record_num : {0}", VB_h.record_num);
+            //Console.WriteLine("VB len_record_def : {0}", VB_h.len_record_def);
+            //Console.WriteLine("VB len_key_section : {0}", VB_h.len_key_section);
+            //Console.WriteLine("VB gap_key_data : {0}", VB_h.gap_key_data);
+
+            //VB record
+            Console.WriteLine();
+            TableType[] VBrecords = Table.save_record(fs, VB_addr, VB_h);
+
+            //VCSB
+            for (int i = 0; i < VB_h.record_num; i++)
+            {
+                Console.WriteLine();
+                UInt64 VCSB_addr;
+                VCSB_addr = VBrecords[i].BlockNum;
+                // Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
+
+                //각 VCSB
+                Console.WriteLine();
+                VCSB vcsb = VCSB.init_vcsb(fs, VCSB_addr);
+
+                //BTCS
+                Console.WriteLine();
+                UInt64 BTCS_addr = vcsb.BTCS;
+                //   Console.WriteLine("BTCS address : {0}", BTCS_addr);
+
+                UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
+                //   Console.WriteLine("BTOM address : {0}", BTOM_addr);
+
+
+                int n = 0;
+
+                List<BTCS> btrn_btln = BTCS.init_btom(fs, BTOM_addr);
+
+                foreach (BTCS b in btrn_btln)
+                {
+                    n++;
+                    //Console.WriteLine("btrn_btln : {0} ", n);
+                    //Console.WriteLine("node id : {0}", b.NodeID);
+                    //Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
+                    //Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
+
+                    if (n > 1)
+                    {
+
+                        RECORD.init_btln(fs, b.BlockNum);
+                    }
 
                 }
+
+
+                // Queue 만들기
+                Queue<UInt64> q = new Queue<UInt64>();
+
+                q.Enqueue(2);   // NodeID of root node
+
+                ulong root = 2;
+
+                if (!RECORD.parent_node_dic.ContainsKey(root)) return;
+                RECORD.ffr_dict[root].path = Path.Combine("/Users/yang-yejin/test", "chk" + csb.CSB_Checkpoint.ToString());
+
+
+
+                while (q.Count > 0)
+                {
+                    UInt64 parent_node_id = q.Dequeue();
+                    String parent_path = RECORD.ffr_dict[parent_node_id].path;
+
+                    Console.WriteLine("ParentID = {0}", parent_node_id);
+                    if (!RECORD.parent_node_dic.ContainsKey(parent_node_id)) continue;
+                    foreach (UInt64 child_node_Id in RECORD.parent_node_dic[parent_node_id])
+                    {
+                        String fname = new string(RECORD.ffr_dict[child_node_Id].FileName, 0, RECORD.ffr_dict[child_node_Id].FileName.Length - 1);
+                        String new_path = Path.Combine(parent_path, fname);
+                        RECORD.ffr_dict[child_node_Id].path = new_path;
+
+
+                        Console.WriteLine("     NodeID = {0}, path : {1}", child_node_Id, new_path);
+
+                        if (RECORD.ffr_dict[child_node_Id].Flag[0] == '8')
+                        {
+                            if (RECORD.er_dic.ContainsKey(child_node_Id))
+                            {
+                                Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[child_node_Id].ExtentStartBlockNum), (long)RECORD.er_dic[child_node_Id].ExtentLength);
+                                Extent.write_extent(child_node_Id, new_extent.buf, new_extent.Count, new_path);
+                            }
+                            else
+                            {
+                                if (!File.Exists(new_path))
+                                {
+                                    File.Create(new_path);
+                                }
+                            }
+
+                        }
+                        else if (RECORD.ffr_dict[child_node_Id].Flag[0] == '4')
+                        {
+                            q.Enqueue(child_node_Id);
+
+                            Directory.CreateDirectory(new_path);
+                        }
+                        
+
+
+
+                    }
+                }
+
+                Console.WriteLine();
+
+
+            }
             Console.WriteLine("FIN");
-            
-          
+
+
         }
 
         public APFS(Stream stream, long startAddress = 0)

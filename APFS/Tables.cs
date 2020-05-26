@@ -285,7 +285,6 @@ namespace APFS
             n = stream.Read(buf, 0, 8);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
             sought_block = (UInt64)Utility.little_hex_to_uint64(hex, n);
-            //VRB_addr = Utility.get_address(VRB_addr);
 
             return sought_block;
         }

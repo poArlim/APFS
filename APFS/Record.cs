@@ -85,9 +85,11 @@ namespace APFS
                                 node_list.Add(f.NodeID);
                                 parent_node_dic.Add(f.ParentID, node_list);
                             }
-                            else
+                            else 
                             {
-                                parent_node_dic[f.ParentID].Add(f.NodeID); 
+                                List<UInt64> child_list = parent_node_dic[f.ParentID];
+                                if(!child_list.Exists(x => x == f.NodeID))
+                                    parent_node_dic[f.ParentID].Add(f.NodeID); 
                             }
                         }
                         catch (ArgumentException)
@@ -116,7 +118,7 @@ namespace APFS
                         }
                         else
                         {
-                            Console.WriteLine("*****Modify Extent Record , nodeID{0}", er.NodeID); 
+                          //  Console.WriteLine("*****Modify Extent Record , nodeID{0}", er.NodeID); 
                             er_dic[er.NodeID] = er; 
                         }
                
