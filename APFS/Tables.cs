@@ -298,42 +298,48 @@ namespace APFS
             string hex;
             byte[] buf = new byte[32];
             UInt64 block_addr = Utility.get_address(blocknum);
+            try
+            {
+                stream.Seek((Int64)block_addr + Convert.ToInt64("0x10", 16), SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 2);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                t.check_point = (uint)Utility.little_hex_to_uint64(hex, n);
 
-            stream.Seek((Int64)block_addr + Convert.ToInt64("0x10", 16), SeekOrigin.Begin);
-            n = stream.Read(buf, 0, 2);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            t.check_point = (uint)Utility.little_hex_to_uint64(hex, n);
+                stream.Seek((Int64)block_addr + Convert.ToInt64("0x18", 16), SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 2);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                t.btree_level = (uint)Utility.little_hex_to_uint64(hex, n);
 
-            stream.Seek((Int64)block_addr + Convert.ToInt64("0x18", 16), SeekOrigin.Begin);
-            n = stream.Read(buf, 0, 2);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            t.btree_level = (uint)Utility.little_hex_to_uint64(hex, n);
+                stream.Seek((Int64)block_addr + Convert.ToInt64("0x20", 16), SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 2);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                t.table_type = (uint)Utility.little_hex_to_uint64(hex, n);
 
-            stream.Seek((Int64)block_addr + Convert.ToInt64("0x20", 16), SeekOrigin.Begin);
-            n = stream.Read(buf, 0, 2);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            t.table_type = (uint)Utility.little_hex_to_uint64(hex, n);
+                stream.Seek((Int64)block_addr + Convert.ToInt64("0x24", 16), SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 2);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                t.record_num = (uint)Utility.little_hex_to_uint64(hex, n);
 
-            stream.Seek((Int64)block_addr + Convert.ToInt64("0x24", 16), SeekOrigin.Begin);
-            n = stream.Read(buf, 0, 2);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            t.record_num = (uint)Utility.little_hex_to_uint64(hex, n);
+                // 바꾼거 
+                stream.Seek((Int64)block_addr + Convert.ToInt64("0x2A", 16), SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 2);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                t.len_record_def = (uint)Utility.little_hex_to_uint64(hex, n);
 
-            // 바꾼거 
-            stream.Seek((Int64)block_addr + Convert.ToInt64("0x2A", 16), SeekOrigin.Begin);
-            n = stream.Read(buf, 0, 2);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            t.len_record_def = (uint)Utility.little_hex_to_uint64(hex, n);
+                //stream.Seek((Int64)block_addr + Convert.ToInt64("0x2C", 16), SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 2);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                t.len_key_section = (uint)Utility.little_hex_to_uint64(hex, n);
 
-            //stream.Seek((Int64)block_addr + Convert.ToInt64("0x2C", 16), SeekOrigin.Begin);
-            n = stream.Read(buf, 0, 2);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            t.len_key_section = (uint)Utility.little_hex_to_uint64(hex, n);
+                //stream.Seek((Int64)block_addr + Convert.ToInt64("0x2E", 16), SeekOrigin.Begin);
+                n = stream.Read(buf, 0, 2);
+                hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+                t.gap_key_data = (uint)Utility.little_hex_to_uint64(hex, n);
+            }catch(Exception e)
+            {
+                return null; 
+            }
 
-            //stream.Seek((Int64)block_addr + Convert.ToInt64("0x2E", 16), SeekOrigin.Begin);
-            n = stream.Read(buf, 0, 2);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            t.gap_key_data = (uint)Utility.little_hex_to_uint64(hex, n);
 
             return t;
         }

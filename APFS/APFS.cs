@@ -29,6 +29,8 @@ namespace APFS
                 List<CSB> deleted_csb_list = CSB.get_deleted_csb_list(fs, Utility.get_address(msb.OriginalCSBD) + CSB.BlockSize);
                 Console.WriteLine("-------------------");
                 Console.WriteLine("msb checkpoint : {0}", msb.CSB_Checkpoint);
+                csb_list.Sort((a, b) => a.CSB_Checkpoint.CompareTo(b.CSB_Checkpoint));
+
                 foreach (CSB c in csb_list)
                 {
                     Console.WriteLine("*************Chckpoint : {0}", c.CSB_Checkpoint);
@@ -36,10 +38,10 @@ namespace APFS
                 }
                 foreach (CSB c in deleted_csb_list)
                 {
-                    Console.WriteLine("deleted Chckpoint : {0}", c.CSB_Checkpoint);
+                    Console.WriteLine("deleted Chckpoint : {0}\n address : {1}", c.CSB_Checkpoint, c.CSB_Address);
 
                 }
-                //bool find = false;
+                bool find = false;
 
                 //foreach (CSB c in csb_list)
                 //{
@@ -50,17 +52,24 @@ namespace APFS
                 //        break;
                 //    }
                 //}
-                       
+
                 //if (!find)
                 //{
                 //    for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
                 //    {
                 //        Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
-                //        if (restore_folder(fs, csb_list[i], "Group28"))
+                //        try
                 //        {
-                //            find = true;
-                //            break;
+                //            if (restore_folder(fs, csb_list[i], "Group28"))
+                //            {
+                //                find = true;
+                //                break;
+                //            }
+                //        }catch(Exception e)
+                //        {
+                //            break; 
                 //        }
+                        
                 //    }
                 //}
                 //find = false;
@@ -78,11 +87,18 @@ namespace APFS
                 //    for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
                 //    {
                 //        Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
-                //        if (restore_file(fs, csb_list[i], "nn.jpg"))
+                //        try
                 //        {
-                //            find = true;
-                //            break;
+                //            if (restore_file(fs, csb_list[i], "nn.jpg"))
+                //            {
+                //                find = true;
+                //                break;
+                //            }
+                //        }catch(Exception e)
+                //        {
+                //            break; 
                 //        }
+
                 //    }
                 //}
 
@@ -99,11 +115,15 @@ namespace APFS
             Console.WriteLine();
 
             UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
-
+            
 
             Table VB_h;
             VB_h = Table.get_table_header(fs, VB_addr);
-
+            if (VB_h == null)
+            {
+                throw new Exception("This csb is invalid.");
+                
+            }
 
             //VB record
             Console.WriteLine();
@@ -219,11 +239,16 @@ namespace APFS
             UInt64 VRB_addr = csb.VolumesIndexblock;
             Console.WriteLine();
 
-            UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
+            UInt64 VB_addr = 0;
+            VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
 
+            Table VB_h = Table.get_table_header(fs, VB_addr);
+            if (VB_h == null)
+            {
+                throw new Exception("This csb is invalid.");
 
-            Table VB_h;
-            VB_h = Table.get_table_header(fs, VB_addr);
+            }
+
 
 
             //VB record
@@ -308,14 +333,21 @@ namespace APFS
                         }
                         if (RECORD.ffr_dict[child_node_Id].Flag[0] == '4')
                         {
-                            if(!restore && fname.Equals(search_name))
+                            if (!restore)
                             {
-                                Console.WriteLine("---------Find Folder-------");
-                                Directory.CreateDirectory(new_path);
-                                q.Clear();
-                                q.Enqueue(child_node_Id);
-                                restore = true;
-                                break;
+                                if (fname.Equals(search_name))
+                                {
+                                    Console.WriteLine("---------Find Folder-------");
+                                    Directory.CreateDirectory(new_path);
+                                    q.Clear();
+                                    q.Enqueue(child_node_Id);
+                                    restore = true;
+                                    break;
+                                }
+                                else
+                                {
+                                    q.Enqueue(child_node_Id);
+                                }
                             }
                             else
                             {
@@ -339,7 +371,7 @@ namespace APFS
 
 
 
-        public static void init_APFS(FileStream fs, CSB csb)
+        public static bool init_APFS(FileStream fs, CSB csb)
         {
             CSB.TotalSize = (UInt64)fs.Length;
             CSB.BlockSize = 4096;
@@ -359,21 +391,26 @@ namespace APFS
             ////volume structure
             UInt64 VRB_addr = csb.VolumesIndexblock;
             Console.WriteLine();
-            //    Console.WriteLine("VRB address : {0}", VRB_addr);
+                Console.WriteLine("VRB address : {0}", VRB_addr);
 
             UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
-            //    Console.WriteLine("VB address : {0}", VB_addr);
+                Console.WriteLine("VB address : {0}", VB_addr);
 
 
 
             Table VB_h;
             VB_h = Table.get_table_header(fs, VB_addr);
-            //Console.WriteLine("VB check_point : {0}", VB_h.check_point);
-            //Console.WriteLine("VB table_type : {0}", VB_h.table_type);
-            //Console.WriteLine("VB record_num : {0}", VB_h.record_num);
-            //Console.WriteLine("VB len_record_def : {0}", VB_h.len_record_def);
-            //Console.WriteLine("VB len_key_section : {0}", VB_h.len_key_section);
-            //Console.WriteLine("VB gap_key_data : {0}", VB_h.gap_key_data);
+            if (VB_h == null)
+            {
+                throw new Exception("This csb is invalid.");
+
+            }
+            Console.WriteLine("VB check_point : {0}", VB_h.check_point);
+            Console.WriteLine("VB table_type : {0}", VB_h.table_type);
+            Console.WriteLine("VB record_num : {0}", VB_h.record_num);
+            Console.WriteLine("VB len_record_def : {0}", VB_h.len_record_def);
+            Console.WriteLine("VB len_key_section : {0}", VB_h.len_key_section);
+            Console.WriteLine("VB gap_key_data : {0}", VB_h.gap_key_data);
 
             //VB record
             Console.WriteLine();
@@ -428,7 +465,7 @@ namespace APFS
 
                 ulong root = 2;
 
-                if (!RECORD.parent_node_dic.ContainsKey(root)) return;
+                if (!RECORD.parent_node_dic.ContainsKey(root)) return true;
                 RECORD.ffr_dict[root].path = Path.Combine("/Users/yang-yejin/test", "chk" + csb.CSB_Checkpoint.ToString());
 
 
@@ -483,7 +520,7 @@ namespace APFS
 
             }
             Console.WriteLine("FIN");
-
+            return true; 
 
         }
 

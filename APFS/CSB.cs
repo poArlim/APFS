@@ -49,14 +49,14 @@ namespace APFS
             {
                 //Console.WriteLine("next_csb_addr : {0}", next_csb_addr); 
                 CSB csb = init_csb(fs, next_csb_addr);
-                if (csb == null) break; 
-                //Console.WriteLine("=======csb Address : {0}", csb.CSB_Address);
-              
-                //Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
-                //Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
-                //Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
-                //Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
-                //Console.WriteLine(" magic : {0}\n", new String(csb.CSB_Magic));
+                if (csb == null) break;
+                Console.WriteLine("=======csb Address : {0}", csb.CSB_Address);
+
+                Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
+                Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
+                Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
+                Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
+                
 
                 csb_list.Add(csb);
                 next_csb_addr = Utility.get_address(csb.NextCSBD) + CSB.BlockSize;
@@ -96,6 +96,13 @@ namespace APFS
             msb.CSB_Address = Utility.get_string_address(fs, 0, "NXSB") - 32;
             CSB.MSB_Address = msb.CSB_Address;
             msb = init_csb(fs, msb.CSB_Address);
+            Console.WriteLine("------MSB Address : {0}", msb.CSB_Address);
+
+            Console.WriteLine("checkpoint : {0}", msb.CSB_Checkpoint);
+            Console.WriteLine(" OldestCSBD : {0}", msb.OldestCSBD);
+            Console.WriteLine(" OriginalCSBD : {0}", msb.OriginalCSBD);
+            Console.WriteLine(" NextCSBD : {0}", msb.NextCSBD);
+
             return msb; 
         }
 
