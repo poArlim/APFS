@@ -13,26 +13,43 @@ namespace APFS
         public bool IsValid;
 
 
-
             static void Main()
         {
 
 
-            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/newhan.dmg", FileMode.Open))
+            using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
             {
 
 
                 CSB.TotalSize = (UInt64)fs.Length;
                 CSB.BlockSize = 4096;
 
-                List<CSB> csb_list = CSB.get_csb_list(fs);
-                CSB msb = csb_list[csb_list.Count - 1];
+
+                CSB msb = CSB.init_msb(fs);
+                List<CSB> csb_list = CSB.get_csb_list(fs, msb);
+                List<CSB> deleted_csb_list = CSB.get_deleted_csb_list(fs, Utility.get_address(msb.OriginalCSBD) + CSB.BlockSize);
+                Console.WriteLine("-------------------");
+                Console.WriteLine("msb checkpoint : {0}", msb.CSB_Checkpoint);
                 foreach (CSB c in csb_list)
                 {
-                    Console.WriteLine("Chckpoint : {0}", c.CSB_Checkpoint);
+                    Console.WriteLine("*************Chckpoint : {0}", c.CSB_Checkpoint);
+                    init_APFS(fs, c);
                 }
-
-                init_APFS(fs, msb);
+                foreach (CSB c in deleted_csb_list)
+                {
+                    Console.WriteLine("deleted Chckpoint : {0}", c.CSB_Checkpoint);
+                  
+                }
+                //Console.WriteLine("-------------------");
+                //foreach (CSB c in csb_list)
+                //{
+                //    Console.WriteLine("*************Chckpoint : {0}", c.CSB_Checkpoint);
+                //    init_APFS(fs, c);
+                //}
+                //CSB csb = CSB.init_csb(fs, 209915904);
+                //Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
+                //init_APFS(fs, csb);
+                //init_APFS(fs, msb);
                 //이전 csb로 init_APFS하는 법 : csb_list index : 0 ~ csb_list.count-1중 아무 csb나 선택해서 init_APFS에 넣csb_list[csb_list.Count - 1]
                 // init_APFS(fs, csb_list[0]); // 첫번째 checkpoint로 하는 예
 
@@ -61,10 +78,10 @@ namespace APFS
                 ////volume structure
                 UInt64 VRB_addr = csb.VolumesIndexblock;
                 Console.WriteLine();
-                Console.WriteLine("VRB address : {0}", VRB_addr);
+            //    Console.WriteLine("VRB address : {0}", VRB_addr);
 
                 UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
-                Console.WriteLine("VB address : {0}", VB_addr);
+            //    Console.WriteLine("VB address : {0}", VB_addr);
 
 
 
@@ -87,7 +104,7 @@ namespace APFS
                     Console.WriteLine();
                     UInt64 VCSB_addr;
                     VCSB_addr = VBrecords[i].BlockNum;
-                    Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
+                   // Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
 
                     //각 VCSB
                     Console.WriteLine();
@@ -96,10 +113,10 @@ namespace APFS
                     //BTCS
                     Console.WriteLine();
                     UInt64 BTCS_addr = vcsb.BTCS;
-                    Console.WriteLine("BTCS address : {0}", BTCS_addr);
+                 //   Console.WriteLine("BTCS address : {0}", BTCS_addr);
 
                     UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
-                    Console.WriteLine("BTOM address : {0}", BTOM_addr);
+                 //   Console.WriteLine("BTOM address : {0}", BTOM_addr);
 
 
                     int n = 0;
@@ -109,10 +126,10 @@ namespace APFS
                     foreach (BTCS b in btrn_btln)
                     {
                         n++;
-                        Console.WriteLine("btrn_btln : {0} ", n);
-                        Console.WriteLine("node id : {0}", b.NodeID);
-                        Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
-                        Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
+                        //Console.WriteLine("btrn_btln : {0} ", n);
+                        //Console.WriteLine("node id : {0}", b.NodeID);
+                        //Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
+                        //Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
 
                         if (n > 1)
                         {
@@ -123,35 +140,17 @@ namespace APFS
                     }
 
 
-                //foreach (KeyValuePair<UInt64, List<UInt64>> kvp in RECORD.parent_node_dic)
-                //{
-                //    List<UInt64> l = kvp.Value;
-                //    String name = "";
-                //    try
-                //    {
-                //        name = new string(RECORD.ffr_dict[kvp.Key].FileName, 0, RECORD.ffr_dict[kvp.Key].FileName.Length - 1);
-                //    }
-                //    catch (Exception e)
-                //    {
-                //        name = "";
-                //    }
-
-
-                //    Console.WriteLine("====Key : {0}, {1}=======", kvp.Key, name);
-                //    foreach (UInt64 nid in l)
-                //    {
-                //        String fname = new string(RECORD.ffr_dict[nid].FileName, 0, RECORD.ffr_dict[nid].FileName.Length - 1);
-                //        Console.WriteLine("NodeID : {0}, {1}", nid, fname);
-                //    }
-                //}
-
                 // Queue 만들기
                 Queue<UInt64> q = new Queue<UInt64>();
 
                     q.Enqueue(2);   // NodeID of root node
 
                     ulong old_idx = 2;
-                    RECORD.ffr_dict[old_idx].path = "/Users/yang-yejin/test";
+
+                    if (!RECORD.parent_node_dic.ContainsKey(old_idx)) return; 
+                    RECORD.ffr_dict[old_idx].path = Path.Combine("/Users/yang-yejin/test", csb.CSB_Checkpoint.ToString());
+ 
+                
 
                     while (q.Count > 0)
                     {
@@ -181,8 +180,10 @@ namespace APFS
                                     }
                                     else
                                     {
-                                    
-                                    File.Create(new_path);
+                                        if (!File.Exists(new_path))
+                                        {
+                                            File.Create(new_path);
+                                        }    
                                     }
 
                                 }
@@ -191,10 +192,6 @@ namespace APFS
                                     q.Enqueue(new_node_id);
                                     
                                     Directory.CreateDirectory(new_path);
-                                
-                                    string octal = Utility.StringToOctal(RECORD.ffr_dict[new_idx].Flag);
-                                    Utility.Exec("chmod " + octal.Substring(3) + " " + new_path);
-          
                                 }
                             }
               

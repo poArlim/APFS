@@ -53,20 +53,20 @@ namespace APFS
         public static void write_extent(UInt64 NodeID, byte[] buf, long count, String path)
         {
             Console.WriteLine("         path : {0}", path);
-            string octal = Utility.StringToOctal(RECORD.ffr_dict[NodeID].Flag);
+        //    string octal = Utility.StringToOctal(RECORD.ffr_dict[NodeID].Flag);
          //   Console.WriteLine("file mode : {0}", octal);
 
             if (!File.Exists(path))
             {
                 try
                 {
-                    //TODO : file mode에 맞춰서 만들기
+             
                     using (FileStream fs = File.Create(path))
                     {
                         fs.Write(buf, 0, (int)count);
                         
                     }
-                    Utility.Exec("chmod " + octal.Substring(3) + " " + path);
+                   // Utility.Exec("chmod " + octal.Substring(3) + " " + path);
                 }
                 catch (Exception e)
                 {

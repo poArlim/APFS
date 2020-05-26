@@ -40,44 +40,72 @@ namespace APFS
         //    }
         //}
 
-        public static List<CSB> get_csb_list(FileStream fs)
+        public static List<CSB> get_csb_list(FileStream fs, CSB msb)
         {
-            List<CSB> csb_list = new List<CSB>(); 
-            CSB msb = CSB.init_csb(fs, 0);
-            //Console.WriteLine("msb - checkpoint : {0}", msb.CSB_Checkpoint);
-            //Console.WriteLine("msb - OldestCSBD : {0}", msb.OldestCSBD);
-            //Console.WriteLine("msb - NextCSBD : {0}", msb.NextCSBD);
+            List<CSB> csb_list = new List<CSB>();
             UInt64 next_csb_addr = Utility.get_address(msb.OldestCSBD) + CSB.BlockSize;
-            while (true) {
-                
+          
+            while (true)
+            {
+                //Console.WriteLine("next_csb_addr : {0}", next_csb_addr); 
                 CSB csb = init_csb(fs, next_csb_addr);
+                if (csb == null) break; 
                 //Console.WriteLine("=======csb Address : {0}", csb.CSB_Address);
+              
                 //Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
                 //Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
+                //Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
                 //Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
+                //Console.WriteLine(" magic : {0}\n", new String(csb.CSB_Magic));
+
                 csb_list.Add(csb);
                 next_csb_addr = Utility.get_address(csb.NextCSBD) + CSB.BlockSize;
-                if (csb.NextCSBD == msb.OriginalCSBD) break; 
+                if (csb.NextCSBD == msb.OriginalCSBD) break;
+
             }
-            csb_list.Add(msb);
             return csb_list;
         }
-
-        public static CSB init_csb(FileStream fs, UInt64 start_addr)
+        public static List<CSB> get_deleted_csb_list(FileStream fs, UInt64 last_csb_address)
         {
-            
+            List<CSB> csb_list = new List<CSB>();
+            UInt64 next_csb_addr = last_csb_address + 2 * CSB.BlockSize; 
+
+            while (true)
+            {
+               // Console.WriteLine("next_csb_addr : {0}", next_csb_addr);
+                CSB csb = init_csb(fs, next_csb_addr);
+                if (csb == null) break;
+                //Console.WriteLine("------deleted csb Address : {0}", csb.CSB_Address);
+
+                //Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
+                //Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
+                //Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
+                //Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
+                //Console.WriteLine(" magic : {0}\n", new String(csb.CSB_Magic));
+
+                csb_list.Add(csb);
+                next_csb_addr = csb.CSB_Address + 2 * CSB.BlockSize; 
+
+            }
+  
+            return csb_list;
+        }
+        public static CSB init_msb(FileStream fs)
+        {
+            CSB msb = new CSB();
+            msb.CSB_Address = Utility.get_string_address(fs, 0, "NXSB") - 32;
+            CSB.MSB_Address = msb.CSB_Address;
+            msb = init_csb(fs, msb.CSB_Address);
+            return msb; 
+        }
+
+        public static CSB init_csb(FileStream fs, UInt64 block_addr)
+        {
+
             CSB csb = new CSB();
-            UInt64 block_addr;
             int n;
             string hex;
             byte[] buf = new byte[64];
-            csb.CSB_Address = Utility.get_string_address(fs, start_addr, "NXSB") - 32;
-            block_addr = csb.CSB_Address;
-            if (start_addr == 0)
-            {
-                CSB.MSB_Address = csb.CSB_Address;
-            }
-
 
             fs.Seek((Int64)block_addr + Convert.ToInt64("0x00", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 8);
@@ -86,7 +114,7 @@ namespace APFS
 
             n = fs.Read(buf, 0, 8);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-   
+
             csb.BlockID = Utility.little_hex_to_uint64(hex, n);
 
             n = fs.Read(buf, 0, 8);
@@ -96,7 +124,7 @@ namespace APFS
             fs.Seek((Int64)block_addr + Convert.ToInt64("0x20", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            csb.CSB_Magic = Utility.hex_to_charArray(hex);
+            csb.CSB_Magic = Utility.hex_to_charArray(hex.Substring(0, 8));
 
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
@@ -128,7 +156,7 @@ namespace APFS
 
             n = fs.Read(buf, 0, 4);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            csb.OldestCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) - 1; 
+            csb.OldestCSBD = (UInt32)Utility.little_hex_to_uint64(hex, n) - 1;
 
             fs.Seek((Int64)block_addr + Convert.ToInt64("0xA0", 16), SeekOrigin.Begin);
             n = fs.Read(buf, 0, 8);
@@ -144,12 +172,13 @@ namespace APFS
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
             csb.VolumeID_List = Utility.little_hex_to_uint64(hex, n);
 
+            csb.CSB_Address = block_addr;
 
 
-            //Console.WriteLine("CSB_Address :{0}", csb.CSB_Address);
             //Console.WriteLine("BlockChecksum :{0}", csb.BlockChecksum);
             //Console.WriteLine("BlockID :{0}", csb.BlockID);
             //Console.WriteLine("CSB_Checkpoint :{0}", csb.CSB_Checkpoint);
+            //Console.WriteLine("CSB_Address :{0}", csb.CSB_Address);
             //Console.WriteLine("BlockSize :{0} ", CSB.BlockSize);
             ////string s = new string(csb.CSB_Magic);
             ////Console.WriteLine("-->MAGIC : {0}", s);
@@ -165,11 +194,15 @@ namespace APFS
             //Console.WriteLine("VolumesMaxNumber :{0} ", csb.VolumesMaxNumber);
             //Console.WriteLine("VolumeID_List :{0} ", csb.VolumeID_List);
 
+            String magic = new string(csb.CSB_Magic, 0, csb.CSB_Magic.Length);
 
+            if (magic.Equals("NXSB"))
+            {
+                return csb;
+            }
 
-
-            return csb;
-
+            return null; 
+            
         }
     }
 }

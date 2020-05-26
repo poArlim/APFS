@@ -50,7 +50,7 @@ namespace APFS
 
 
 
-            Console.WriteLine("block_num: {0}, 0x{1}", block_num, block_num.ToString("X"));
+            //Console.WriteLine("block_num: {0}, 0x{1}", block_num, block_num.ToString("X"));
             //Console.WriteLine("table type : {0}", header.table_type);
 
             for (int i = 0; i < header.record_num; i++)
@@ -129,6 +129,8 @@ namespace APFS
                         break;
                 }
             }
+
+
             return;
         }
 
@@ -297,7 +299,7 @@ namespace APFS
     public class ExtentStatus // 0x60
     {
         //key section
-
+        public UInt64 NodeID; //0x00
         //data section
         public UInt32 ExtentExist; //0x00
 
@@ -306,6 +308,8 @@ namespace APFS
         {
             string hex;
             ExtentStatus es = new ExtentStatus();
+            hex = key.Substring(0, 14);
+            es.NodeID = (UInt64)Utility.little_hex_to_uint64(hex, 7); 
             hex = data.Substring(0, 8);
             es.ExtentExist = (UInt32)Utility.little_hex_to_uint64(hex, 4);
 
