@@ -11,8 +11,8 @@ namespace APFS
         private Node _rootNode;
 
         public bool IsValid;
-
-
+        public static int chk = 0;
+       
         static void Main()
         {
 
@@ -20,33 +20,45 @@ namespace APFS
             using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
             {
 
-
+                String search = "";
+                search = Console.ReadLine();
+                Console.WriteLine("Search : {0}", search); 
                 CSB.TotalSize = (UInt64)fs.Length;
                 CSB.BlockSize = 4096;
 
-                CSB msb = CSB.init_msb(fs);
-                List<CSB> csb_list = CSB.get_csb_list(fs, msb);
-                List<CSB> deleted_csb_list = CSB.get_deleted_csb_list(fs, Utility.get_address(msb.OriginalCSBD) + CSB.BlockSize);
-                Console.WriteLine("-------------------");
-                Console.WriteLine("msb checkpoint : {0}", msb.CSB_Checkpoint);
+                List<CSB> csb_list = CSB.get_csb_list(fs);
+                List<CSB> deleted_csb_list = CSB.get_deleted_csb_list(fs, Utility.get_address(csb_list[csb_list.Count-1].NextCSBD) + CSB.BlockSize);
                 csb_list.Sort((a, b) => a.CSB_Checkpoint.CompareTo(b.CSB_Checkpoint));
-
-                foreach (CSB c in csb_list)
+                CSB msb = csb_list[csb_list.Count - 1];
+                
+               
+                foreach (CSB csb in csb_list)
                 {
-                    Console.WriteLine("*************Chckpoint : {0}", c.CSB_Checkpoint);
+                    Console.WriteLine("*************Chckpoint : {0} \n address : {1}", csb.CSB_Checkpoint, csb.CSB_Address);
+                    Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
+                    Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
+                    Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
+                    Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
 
                 }
-                foreach (CSB c in deleted_csb_list)
+                foreach (CSB csb in deleted_csb_list)
                 {
-                    Console.WriteLine("deleted Chckpoint : {0}\n address : {1}", c.CSB_Checkpoint, c.CSB_Address);
+                    Console.WriteLine("--------------deleted Chckpoint : {0}\n address : {1}", csb.CSB_Checkpoint, csb.CSB_Address);
+                    Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
+                    Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
+                    Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
+                    Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
 
                 }
-                bool find = false;
+                //Console.WriteLine("-------------------");
+                //Console.WriteLine("msb checkpoint : {0}", msb.CSB_Checkpoint);
+                init_APFS(fs,msb);
+                //bool find = false;
 
                 //foreach (CSB c in csb_list)
                 //{
                 //    Console.WriteLine("=========Chckpoint : {0}", c.CSB_Checkpoint);
-                //    if (restore_folder(fs, c, "Group28"))
+                //    if (restore_folder(fs, c, "TOP_SECRET"))
                 //    {
                 //        find = true;
                 //        break;
@@ -57,26 +69,28 @@ namespace APFS
                 //{
                 //    for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
                 //    {
-                //        Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
+                //        Console.WriteLine("=========deleted Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
                 //        try
                 //        {
-                //            if (restore_folder(fs, csb_list[i], "Group28"))
+                //            if (restore_folder(fs, deleted_csb_list[i], "TOP_SECRET"))
                 //            {
                 //                find = true;
                 //                break;
                 //            }
-                //        }catch(Exception e)
-                //        {
-                //            break; 
                 //        }
-                        
+                //        catch (Exception e)
+                //        {
+                //            Console.WriteLine("error : {0}", e.Message); 
+                //            break;
+                //        }
+
                 //    }
                 //}
-                //find = false;
+                //bool find = false;
                 //for (int i = csb_list.Count - 1; i >= 0; i--)
                 //{
                 //    Console.WriteLine("=========Chckpoint : {0}", csb_list[i].CSB_Checkpoint);
-                //    if (restore_file(fs, csb_list[i], "nn.jpg"))
+                //    if (restore_file(fs, csb_list[i], "kakaotalk.JPG"))
                 //    {
                 //        find = true;
                 //        break;
@@ -89,14 +103,16 @@ namespace APFS
                 //        Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
                 //        try
                 //        {
-                //            if (restore_file(fs, csb_list[i], "nn.jpg"))
+                //            if (restore_file(fs, deleted_csb_list[i], "kakaotalk.JPG"))
                 //            {
                 //                find = true;
                 //                break;
                 //            }
-                //        }catch(Exception e)
+                //        }
+                //        catch (Exception e)
                 //        {
-                //            break; 
+                //            Console.WriteLine("error : {0}", e.Message);
+                //            break;
                 //        }
 
                 //    }
@@ -171,7 +187,7 @@ namespace APFS
                 ulong root = 2;
 
                 if (!RECORD.parent_node_dic.ContainsKey(root)) return false;
-                RECORD.ffr_dict[root].path = Path.Combine("/Users/yang-yejin/test", "restore");
+                RECORD.ffr_dict[root].path = @"/Users/yang-yejin/restored_apfs"; 
 
 
 
@@ -297,7 +313,7 @@ namespace APFS
                 ulong root = 2;
 
                 if (!RECORD.parent_node_dic.ContainsKey(root)) return false;
-                RECORD.ffr_dict[root].path = Path.Combine("/Users/yang-yejin/test", "restore");
+                RECORD.ffr_dict[root].path = @"/Users/yang-yejin/restored_apfs"; 
 
                 restore = false; 
 
@@ -338,7 +354,8 @@ namespace APFS
                                 if (fname.Equals(search_name))
                                 {
                                     Console.WriteLine("---------Find Folder-------");
-                                    Directory.CreateDirectory(new_path);
+                                    RECORD.ffr_dict[child_node_Id].path = Path.Combine(RECORD.ffr_dict[child_node_Id].path, fname); 
+                                    Directory.CreateDirectory(RECORD.ffr_dict[child_node_Id].path);
                                     q.Clear();
                                     q.Enqueue(child_node_Id);
                                     restore = true;
@@ -376,18 +393,6 @@ namespace APFS
             CSB.TotalSize = (UInt64)fs.Length;
             CSB.BlockSize = 4096;
 
-            //CSBD
-            //CSBD csbd = CSBD.init_csbd(fs, 0);
-            //csbd.records = new CSBD_recode[csbd.RecordNum];
-            //UInt64 start_addr = csbd.CSBD_Address + 40; //40 = 0x28
-            //for (UInt16 i = 0; i < csbd.RecordNum; i++)
-            //{
-            //    Console.WriteLine();
-            //    Console.WriteLine($"record[{i}]");
-            //    csbd.records[i] = CSBD_recode.init_csbd_recode(fs, start_addr);
-            //    start_addr += 40; // 40 = 0x28
-            //}
-
             ////volume structure
             UInt64 VRB_addr = csb.VolumesIndexblock;
             Console.WriteLine();
@@ -405,12 +410,6 @@ namespace APFS
                 throw new Exception("This csb is invalid.");
 
             }
-            Console.WriteLine("VB check_point : {0}", VB_h.check_point);
-            Console.WriteLine("VB table_type : {0}", VB_h.table_type);
-            Console.WriteLine("VB record_num : {0}", VB_h.record_num);
-            Console.WriteLine("VB len_record_def : {0}", VB_h.len_record_def);
-            Console.WriteLine("VB len_key_section : {0}", VB_h.len_key_section);
-            Console.WriteLine("VB gap_key_data : {0}", VB_h.gap_key_data);
 
             //VB record
             Console.WriteLine();
@@ -422,7 +421,7 @@ namespace APFS
                 Console.WriteLine();
                 UInt64 VCSB_addr;
                 VCSB_addr = VBrecords[i].BlockNum;
-                // Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
+                 Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
 
                 //각 VCSB
                 Console.WriteLine();
@@ -431,10 +430,10 @@ namespace APFS
                 //BTCS
                 Console.WriteLine();
                 UInt64 BTCS_addr = vcsb.BTCS;
-                //   Console.WriteLine("BTCS address : {0}", BTCS_addr);
+                   Console.WriteLine("BTCS address : {0}", BTCS_addr);
 
                 UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
-                //   Console.WriteLine("BTOM address : {0}", BTOM_addr);
+                   Console.WriteLine("BTOM address : {0}", BTOM_addr);
 
 
                 int n = 0;
@@ -444,10 +443,10 @@ namespace APFS
                 foreach (BTCS b in btrn_btln)
                 {
                     n++;
-                    //Console.WriteLine("btrn_btln : {0} ", n);
-                    //Console.WriteLine("node id : {0}", b.NodeID);
-                    //Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
-                    //Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
+                    Console.WriteLine("btrn_btln : {0} ", n);
+                    Console.WriteLine("node id : {0}", b.NodeID);
+                    Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
+                    Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
 
                     if (n > 1)
                     {
@@ -466,7 +465,8 @@ namespace APFS
                 ulong root = 2;
 
                 if (!RECORD.parent_node_dic.ContainsKey(root)) return true;
-                RECORD.ffr_dict[root].path = Path.Combine("/Users/yang-yejin/test", "chk" + csb.CSB_Checkpoint.ToString());
+                RECORD.ffr_dict[root].path = @"/Users/yang-yejin/restored_apfs"; 
+
 
 
 

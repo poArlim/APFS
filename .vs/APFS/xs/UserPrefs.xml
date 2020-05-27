@@ -1,24 +1,31 @@
 ﻿<Properties StartupConfiguration="{2BE2EEB5-7DAD-45EB-9DFC-529B9ECBC0DD}|Default">
   <MonoDevelop.Ide.ItemProperties.APFS PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="APFS/Record.cs">
     <Files>
-      <File FileName="APFS/APFS.cs" Line="110" Column="22" />
-      <File FileName="APFS/Record.cs" Line="15" Column="54" />
-      <File FileName="APFS/Extent.cs" Line="94" Column="48" />
+      <File FileName="APFS/MetaExtent.cs" Line="1" Column="1" />
+      <File FileName="APFS/APFS.cs" Line="171" Column="30" />
+      <File FileName="APFS/Extent.cs" Line="63" Column="14" />
+      <File FileName="APFS/BTCS.cs" Line="109" Column="18" />
+      <File FileName="APFS/CSBD.cs" Line="6" Column="18" />
+      <File FileName="APFS/DirEntry.cs" Line="14" Column="18" />
+      <File FileName="APFS/VB.cs" Line="7" Column="19" />
+      <File FileName="APFS/VCSB.cs" Line="153" Column="91" />
+      <File FileName="APFS/CSB.cs" Line="95" Column="27" NotebookId="1" />
+      <File FileName="APFS/Utility.cs" Line="28" Column="25" NotebookId="1" />
+      <File FileName="APFS/Tables.cs" Line="284" Column="38" NotebookId="1" />
+      <File FileName="APFS/Record.cs" Line="66" Column="26" NotebookId="1" />
     </Files>
     <Pads>
-      <Pad Id="ProjectPad">
+      <Pad Id="ClassPad">
         <State name="__root__">
           <Node name="APFS" expanded="True">
             <Node name="APFS" expanded="True">
-              <Node name="Properties" expanded="True" />
-              <Node name="Extent.cs" selected="True" />
+              <Node name="APFS" expanded="True">
+                <Node name="APFS.VCSB" selected="True" />
+              </Node>
             </Node>
           </Node>
         </State>
-      </Pad>
-      <Pad Id="MonoDevelop.Debugger.WatchPad">
-        <State />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>

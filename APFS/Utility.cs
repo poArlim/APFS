@@ -49,7 +49,7 @@ namespace APFS
         public static UInt64 get_address(UInt64 blocknum)
         {
             UInt64 address;
-            address = CSB.MSB_Address + blocknum * (UInt64)CSB.BlockSize;
+            address = CSB.first_csb_address + blocknum * (UInt64)CSB.BlockSize;
 
             return address;
         }

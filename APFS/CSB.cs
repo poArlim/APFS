@@ -7,7 +7,7 @@ namespace APFS
     public class CSB
     {
 
-        public static UInt64 MSB_Address;
+        public static UInt64 first_csb_address;
         public static UInt64 TotalSize;
         public UInt64 CSB_Address;
         public UInt64 BlockChecksum;
@@ -40,14 +40,21 @@ namespace APFS
         //    }
         //}
 
-        public static List<CSB> get_csb_list(FileStream fs, CSB msb)
+        public static List<CSB> get_csb_list(FileStream fs)
         {
             List<CSB> csb_list = new List<CSB>();
-            UInt64 next_csb_addr = Utility.get_address(msb.OldestCSBD) + CSB.BlockSize;
-          
+            CSB first_csb = CSB.init_first_csb(fs);
+            CSB.first_csb_address = first_csb.CSB_Address; 
+            UInt64 next_csb_addr = Utility.get_address(first_csb.OldestCSBD) + CSB.BlockSize;
+            Console.WriteLine("=======first csb Address : {0}", first_csb.CSB_Address);
+
+            Console.WriteLine("checkpoint : {0}", first_csb.CSB_Checkpoint);
+            Console.WriteLine(" OldestCSBD : {0}", first_csb.OldestCSBD);
+            Console.WriteLine(" OriginalCSBD : {0}", first_csb.OriginalCSBD);
+            Console.WriteLine(" NextCSBD : {0}", first_csb.NextCSBD);
             while (true)
             {
-                //Console.WriteLine("next_csb_addr : {0}", next_csb_addr); 
+                Console.WriteLine("next_csb_addr : {0}", next_csb_addr); 
                 CSB csb = init_csb(fs, next_csb_addr);
                 if (csb == null) break;
                 Console.WriteLine("=======csb Address : {0}", csb.CSB_Address);
@@ -56,13 +63,13 @@ namespace APFS
                 Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
                 Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
                 Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
-                
-
                 csb_list.Add(csb);
                 next_csb_addr = Utility.get_address(csb.NextCSBD) + CSB.BlockSize;
-                if (csb.NextCSBD == msb.OriginalCSBD) break;
+                if (csb.OriginalCSBD == first_csb.OriginalCSBD) break;
 
             }
+            
+            Console.WriteLine("fin init get csb list"); 
             return csb_list;
         }
         public static List<CSB> get_deleted_csb_list(FileStream fs, UInt64 last_csb_address)
@@ -90,20 +97,14 @@ namespace APFS
   
             return csb_list;
         }
-        public static CSB init_msb(FileStream fs)
+        public static CSB init_first_csb(FileStream fs)
         {
-            CSB msb = new CSB();
-            msb.CSB_Address = Utility.get_string_address(fs, 0, "NXSB") - 32;
-            CSB.MSB_Address = msb.CSB_Address;
-            msb = init_csb(fs, msb.CSB_Address);
-            Console.WriteLine("------MSB Address : {0}", msb.CSB_Address);
+            CSB csb = new CSB();
+            csb.CSB_Address = Utility.get_string_address(fs, 0, "NXSB") - 32;
+            
+            csb = init_csb(fs, csb.CSB_Address);
 
-            Console.WriteLine("checkpoint : {0}", msb.CSB_Checkpoint);
-            Console.WriteLine(" OldestCSBD : {0}", msb.OldestCSBD);
-            Console.WriteLine(" OriginalCSBD : {0}", msb.OriginalCSBD);
-            Console.WriteLine(" NextCSBD : {0}", msb.NextCSBD);
-
-            return msb; 
+            return csb; 
         }
 
         public static CSB init_csb(FileStream fs, UInt64 block_addr)
