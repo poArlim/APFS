@@ -46,14 +46,14 @@ namespace APFS
             CSB first_csb = CSB.init_first_csb(fs);
             CSB.first_csb_address = first_csb.CSB_Address; 
             UInt64 next_csb_addr = Utility.get_address(first_csb.OldestCSBD) + CSB.BlockSize;
-            /*
+            
             Console.WriteLine("=======first csb Address : {0}", first_csb.CSB_Address);
 
             Console.WriteLine("checkpoint : {0}", first_csb.CSB_Checkpoint);
             Console.WriteLine(" OldestCSBD : {0}", first_csb.OldestCSBD);
             Console.WriteLine(" OriginalCSBD : {0}", first_csb.OriginalCSBD);
             Console.WriteLine(" NextCSBD : {0}", first_csb.NextCSBD);
-            */
+            
             while (true)
             {
                 //Console.WriteLine("next_csb_addr : {0}", next_csb_addr); 

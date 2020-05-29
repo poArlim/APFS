@@ -23,7 +23,7 @@ namespace APFS
             {
                 using (FileStream fs = new FileStream(@dmgPath, FileMode.Open))
                 {
-                    
+
                     bool make_csb = false;
                     List<CSB> csb_list = new List<CSB>();
                     List<CSB> deleted_csb_list = new List<CSB>();
@@ -71,123 +71,130 @@ namespace APFS
                             make_csb = true;
                         }
 
-                        if (input.Equals("1"))
+                        try
                         {
-                            try
+                            if (input.Equals("1"))
                             {
-                                init_APFS(fs, msb);
-                            }
-                            catch(Exception e)
-                            {
-                                Console.WriteLine("Error at init_APRS : {0}", e);
-                                return; 
-                            }
-                            
-                        }
-                        else if (input.Equals("2"))
-                        {
-                            init_APFS(fs, csb_list[csb_list.Count / 2]);
-                        }
-                        else if (input.Equals("3"))
-                        {
-                            bool find = false;
-                            String to_search = "";
-                            Console.WriteLine("Enter the name of the Folder you want to restore : ");
-                            to_search = Console.ReadLine();
-                            foreach (CSB c in csb_list)
-                            {
-                                Console.WriteLine("=========Chckpoint : {0}", c.CSB_Checkpoint);
-                                if (restore_folder(fs, c, to_search))
+                                try
                                 {
-                                    find = true;
-                                    break;
+                                    init_APFS(fs, msb);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("This APFS Cannot Recover...");
+                                    return;
+                                }
+
+                            }
+                            else if (input.Equals("2"))
+                            {
+                                int chk, idx;
+
+                                Console.WriteLine("\n\nPlease select the checkpoint you want to go back to.");
+                                Console.WriteLine("(The larger the checkpoint, the more recent checkpoint.)");
+                                Console.Write("Checkpoint : ");
+                                for (int i = 1; i <= csb_list.Count; i++)
+                                {
+                                    Console.Write("{0}  ", (int)msb.CSB_Checkpoint - csb_list.Count + i);
+                                }
+                                Console.WriteLine("");
+                                string s_chk = Console.ReadLine();
+                                chk = Convert.ToInt32(s_chk);
+                                idx = chk - (int)msb.CSB_Checkpoint + csb_list.Count - 1;
+                                if (idx >= 0 && idx < csb_list.Count)
+                                {
+                                    init_APFS(fs, csb_list[idx]);
+       
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid Checkpoint Number");
                                 }
                             }
-
-                            if (!find)
+                            else if (input.Equals("3"))
                             {
-                                for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
+                                bool find = false;
+                                String to_search = "";
+                                Console.WriteLine("Enter the name of the Folder you want to restore : ");
+                                to_search = Console.ReadLine();
+                                for (int i = csb_list.Count - 1; i >= 0; i--)
                                 {
-                                    Console.WriteLine("=========deleted Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
-                                    try
+                                    CSB c = csb_list[i];
+                                    Console.WriteLine("=========Chckpoint : {0}", c.CSB_Checkpoint);
+                                    if (restore_folder(fs, c, to_search))
                                     {
+                                        find = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!find)
+                                {
+                                    for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
+                                    {
+                                        Console.WriteLine("=========deleted Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
                                         if (restore_folder(fs, deleted_csb_list[i], to_search))
                                         {
                                             find = true;
                                             break;
                                         }
+      
                                     }
-                                    catch (Exception e)
+                                }
+                            }
+                            else if (input.Equals("4"))
+                            {
+                                bool find = false;
+                                String to_search = "";
+                                Console.WriteLine("Enter the name of the file you want to restore : ");
+                                to_search = Console.ReadLine();
+                                for (int i = csb_list.Count - 1; i >= 0; i--)
+                                {
+                                    Console.WriteLine("=========Chckpoint : {0}", csb_list[i].CSB_Checkpoint);
+                                    if (restore_file(fs, csb_list[i], to_search))
                                     {
-                                        Console.WriteLine("Cannot Find Folder...");
+                                        find = true;
                                         break;
                                     }
-
                                 }
-                            }
-                            if (!find)
-                            {
-                                Console.WriteLine("Cannot Find Folder...");
-                            }
-                        }
-                        else if (input.Equals("4"))
-                        {
-                            bool find = false;
-                            String to_search = "";
-                            Console.WriteLine("Enter the name of the file you want to restore : ");
-                            to_search = Console.ReadLine();
-                            for (int i = csb_list.Count - 1; i >= 0; i--)
-                            {
-                                Console.WriteLine("=========Chckpoint : {0}", csb_list[i].CSB_Checkpoint);
-                                if (restore_file(fs, csb_list[i], to_search))
+                                if (!find)
                                 {
-                                    find = true;
-                                    break;
-                                }
-                            }
-                            if (!find)
-                            {
-                                for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
-                                {
-                                    Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
-                                    try
+                                    for (int i = deleted_csb_list.Count - 1; i >= 0; i--)
                                     {
+                                        Console.WriteLine("=========Chckpoint : {0}", deleted_csb_list[i].CSB_Checkpoint);
+
                                         if (restore_file(fs, deleted_csb_list[i], to_search))
                                         {
                                             find = true;
                                             break;
                                         }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine("Cannot Find file...");
-                                        break;
-                                    }
+         
 
+                                    }
                                 }
                             }
-                            if (!find)
+                            else if (input.Equals("5"))
                             {
-                                Console.WriteLine("Cannot Find file...");
+                                return;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid Input");
                             }
                         }
-                        else if (input.Equals("5"))
+                        catch(Exception e)
                         {
-                            return;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid Input");
+                            Console.WriteLine(e.Message);
                         }
                     }
 
                 }
 
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Console.WriteLine("Cannot Access dmg file");
-                return; 
+                return;
             }
 
 
@@ -200,20 +207,20 @@ namespace APFS
             RECORD.parent_node_dic = new Dictionary<UInt64, List<UInt64>>();
             RECORD.ffr_dict.Clear();
             RECORD.ffr_dict = new Dictionary<UInt64, FileFolderRecord>();
-            RECORD.er_dic.Clear(); 
+            RECORD.er_dic.Clear();
             RECORD.er_dic = new Dictionary<UInt64, ExtentRecord>();
 
             ////volume structure
             UInt64 VRB_addr = csb.VolumesIndexblock;
             UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
-            
+
 
             Table VB_h;
             VB_h = Table.get_table_header(fs, VB_addr);
             if (VB_h == null)
             {
-                throw new Exception("This csb is invalid.");
-                
+                throw new Exception("This csb is invalid. Cannot restore file");
+
             }
 
             //VB record
@@ -262,7 +269,7 @@ namespace APFS
                 ulong root = 2;
 
                 if (!RECORD.parent_node_dic.ContainsKey(root)) return false;
-                RECORD.ffr_dict[root].path = @restore_to_path; 
+                RECORD.ffr_dict[root].path = @restore_to_path;
 
 
 
@@ -279,7 +286,7 @@ namespace APFS
                         //String new_path = Path.Combine(parent_path, fname);
                         RECORD.ffr_dict[child_node_Id].path = parent_path;
 
-                        Console.WriteLine("     NodeID = {0}, {1}", child_node_Id , fname);
+                        Console.WriteLine("     NodeID = {0}, {1}", child_node_Id, fname);
 
                         if (RECORD.ffr_dict[child_node_Id].Flag[0] == '8' && fname.Equals(search_name))
                         {
@@ -296,8 +303,8 @@ namespace APFS
                                     File.Create(new_path);
                                 }
                             }
-                            Console.WriteLine("make file!!!!!!!!!!!!!"); 
-                            return true; 
+                            Console.WriteLine("Restore File");
+                            return true;
 
                         }
                         else if (RECORD.ffr_dict[child_node_Id].Flag[0] == '4')
@@ -317,7 +324,7 @@ namespace APFS
             }
             Console.WriteLine("FIN");
 
-            return false; 
+            return false;
         }
 
         public static bool restore_folder(FileStream fs, CSB csb, string search_name)
@@ -329,7 +336,7 @@ namespace APFS
             RECORD.er_dic.Clear();
             RECORD.er_dic = new Dictionary<UInt64, ExtentRecord>();
 
-            bool restore = false; 
+            bool restore = false;
             ////volume structure
             UInt64 VRB_addr = csb.VolumesIndexblock;
             UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
@@ -337,7 +344,7 @@ namespace APFS
             Table VB_h = Table.get_table_header(fs, VB_addr);
             if (VB_h == null)
             {
-                throw new Exception("This csb is invalid.");
+                throw new Exception("This csb is invalid.\n Cannot restore folder");
 
             }
 
@@ -389,9 +396,9 @@ namespace APFS
                 ulong root = 2;
 
                 if (!RECORD.parent_node_dic.ContainsKey(root)) return false;
-                RECORD.ffr_dict[root].path = @restore_to_path; 
+                RECORD.ffr_dict[root].path = @restore_to_path;
 
-                restore = false; 
+                restore = false;
 
                 while (q.Count > 0)
                 {
@@ -403,7 +410,7 @@ namespace APFS
                     foreach (UInt64 child_node_Id in RECORD.parent_node_dic[parent_node_id])
                     {
                         String fname = new string(RECORD.ffr_dict[child_node_Id].FileName, 0, RECORD.ffr_dict[child_node_Id].FileName.Length - 1);
-                        if(restore)
+                        if (restore)
                             RECORD.ffr_dict[child_node_Id].path = Path.Combine(parent_path, fname);
                         else RECORD.ffr_dict[child_node_Id].path = parent_path;
 
@@ -411,7 +418,7 @@ namespace APFS
                         String new_path = RECORD.ffr_dict[child_node_Id].path;
                         if (restore && RECORD.ffr_dict[child_node_Id].Flag[0] == '8')
                         {
-                            
+
                             if (RECORD.er_dic.ContainsKey(child_node_Id))
                             {
                                 Extent new_extent = Extent.read_extent(fs, (long)Utility.get_address(RECORD.er_dic[child_node_Id].ExtentStartBlockNum), (long)RECORD.er_dic[child_node_Id].ExtentLength);
@@ -420,7 +427,7 @@ namespace APFS
                             else if (!File.Exists(new_path))
                             {
                                 File.Create(new_path);
-                               
+
                             }
                         }
                         if (RECORD.ffr_dict[child_node_Id].Flag[0] == '4')
@@ -430,7 +437,7 @@ namespace APFS
                                 if (fname.Equals(search_name))
                                 {
                                     Console.WriteLine("---------Find Folder-------");
-                                    RECORD.ffr_dict[child_node_Id].path = Path.Combine(RECORD.ffr_dict[child_node_Id].path, fname); 
+                                    RECORD.ffr_dict[child_node_Id].path = Path.Combine(RECORD.ffr_dict[child_node_Id].path, fname);
                                     Directory.CreateDirectory(RECORD.ffr_dict[child_node_Id].path);
                                     q.Clear();
                                     q.Enqueue(child_node_Id);
@@ -447,10 +454,10 @@ namespace APFS
                                 Directory.CreateDirectory(new_path);
                                 q.Enqueue(child_node_Id);
                             }
-                            
+
                         }
                     }
-                     
+
                 }
 
                 Console.WriteLine();
@@ -459,30 +466,30 @@ namespace APFS
             }
             Console.WriteLine("FIN");
 
-            return restore; 
+            return restore;
         }
 
 
 
         public static bool init_APFS(FileStream fs, CSB csb)
         {
-            Console.WriteLine("***************Make File Structure at Checkpoint : {0}*************", csb.CSB_Checkpoint); 
+            Console.WriteLine("*************** Make File Structure at Checkpoint : {0} *************", csb.CSB_Checkpoint);
             RECORD.parent_node_dic.Clear();
             RECORD.parent_node_dic = new Dictionary<UInt64, List<UInt64>>();
             RECORD.ffr_dict.Clear();
             RECORD.ffr_dict = new Dictionary<UInt64, FileFolderRecord>();
             RECORD.er_dic.Clear();
             RECORD.er_dic = new Dictionary<UInt64, ExtentRecord>();
-                    
+
             ////volume structure
             UInt64 VRB_addr = csb.VolumesIndexblock;
             Console.WriteLine();
-                Console.WriteLine("VRB address : {0} {1}", VRB_addr, Utility.get_address(VRB_addr));
+            Console.WriteLine("VRB address : {0} {1}", VRB_addr, Utility.get_address(VRB_addr));
 
             UInt64 VB_addr = Table.get_block_address(fs, VRB_addr, "0x30");
-                Console.WriteLine("VB address : {0}", VB_addr);
+            Console.WriteLine("VB address : {0}", VB_addr);
 
-            Console.WriteLine("first csb address : {0}, blocksize : {1}, totalLength : {2}", CSB.first_csb_address, CSB.BlockSize, CSB.TotalSize); 
+            Console.WriteLine("first csb address : {0}, blocksize : {1}, totalLength : {2}", CSB.first_csb_address, CSB.BlockSize, CSB.TotalSize);
 
             Table VB_h;
             VB_h = Table.get_table_header(fs, VB_addr);
@@ -502,7 +509,7 @@ namespace APFS
                 Console.WriteLine();
                 UInt64 VCSB_addr;
                 VCSB_addr = VBrecords[i].BlockNum;
-                 Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
+                Console.WriteLine("VCSB_addr : {0}", VCSB_addr);
 
                 //각 VCSB
                 Console.WriteLine();
@@ -511,10 +518,10 @@ namespace APFS
                 //BTCS
                 Console.WriteLine();
                 UInt64 BTCS_addr = vcsb.BTCS;
-                   Console.WriteLine("BTCS address : {0}", BTCS_addr);
+                Console.WriteLine("BTCS address : {0}", BTCS_addr);
 
                 UInt64 BTOM_addr = Table.get_block_address(fs, BTCS_addr, "0x30");
-                   Console.WriteLine("BTOM address : {0}", BTOM_addr);
+                Console.WriteLine("BTOM address : {0}", BTOM_addr);
 
 
                 int n = 0;
@@ -546,7 +553,7 @@ namespace APFS
                 ulong root = 2;
 
                 if (!RECORD.parent_node_dic.ContainsKey(root)) return true;
-                RECORD.ffr_dict[root].path = @restore_to_path; 
+                RECORD.ffr_dict[root].path = @restore_to_path;
 
 
 
@@ -589,7 +596,7 @@ namespace APFS
 
                             Directory.CreateDirectory(new_path);
                         }
-                        
+
 
 
 
@@ -601,7 +608,7 @@ namespace APFS
 
             }
             Console.WriteLine("FIN");
-            return true; 
+            return true;
 
         }
 
