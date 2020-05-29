@@ -10,7 +10,6 @@ namespace APFS
         
         public static Dictionary<UInt64, FileFolderRecord> ffr_dict = new Dictionary<UInt64, FileFolderRecord>();
         
-        public static List<NameAttribute> na_list = new List<NameAttribute>();
         public static List<ExtentStatus> es_list = new List<ExtentStatus>();
         public static List<KeyRecord> kr_list = new List<KeyRecord>();
         public static Dictionary<UInt64, ExtentRecord> er_dic = new Dictionary<UInt64, ExtentRecord>(); //NodeID, ExtentRecord
@@ -99,16 +98,11 @@ namespace APFS
                  
                         break;
 
-                        //case '4':
-                       // NameAttribute na = NameAttribute.get(table_info[i].KeySection, table_info[i].DataSection);
-                      //  RECORD.na_list.Add(na);
-                    //    break;
-
-                    case '6':
-                        ExtentStatus es = ExtentStatus.get(table_info[i].KeySection, table_info[i].DataSection);
-                        RECORD.es_list.Add(es);
+                    //case '6':
+                    //    ExtentStatus es = ExtentStatus.get(table_info[i].KeySection, table_info[i].DataSection);
+                    //    RECORD.es_list.Add(es);
     
-                        break;
+                    //    break;
 
                     case '8':
                         ExtentRecord er = ExtentRecord.get(table_info[i].KeySection, table_info[i].DataSection);
@@ -124,11 +118,11 @@ namespace APFS
                
                         break;
 
-                    case '9':
-                        KeyRecord kr = KeyRecord.get(table_info[i].KeySection, table_info[i].DataSection);
-                        RECORD.kr_list.Add(kr);
+                    //case '9':
+                    //    KeyRecord kr = KeyRecord.get(table_info[i].KeySection, table_info[i].DataSection);
+                    //    RECORD.kr_list.Add(kr);
                 
-                        break;
+                    //    break;
                 }
             }
 
@@ -287,16 +281,6 @@ namespace APFS
 
     }
 
-    public class NameAttribute // 0x40
-    {
-        //key section
-
-        //data section
-        //public static NameAttribute get(string key, string data)
-        //{
-
-        //}
-    }
 
     public class ExtentStatus // 0x60
     {

@@ -46,23 +46,27 @@ namespace APFS
             CSB first_csb = CSB.init_first_csb(fs);
             CSB.first_csb_address = first_csb.CSB_Address; 
             UInt64 next_csb_addr = Utility.get_address(first_csb.OldestCSBD) + CSB.BlockSize;
+            /*
             Console.WriteLine("=======first csb Address : {0}", first_csb.CSB_Address);
 
             Console.WriteLine("checkpoint : {0}", first_csb.CSB_Checkpoint);
             Console.WriteLine(" OldestCSBD : {0}", first_csb.OldestCSBD);
             Console.WriteLine(" OriginalCSBD : {0}", first_csb.OriginalCSBD);
             Console.WriteLine(" NextCSBD : {0}", first_csb.NextCSBD);
+            */
             while (true)
             {
-                Console.WriteLine("next_csb_addr : {0}", next_csb_addr); 
+                //Console.WriteLine("next_csb_addr : {0}", next_csb_addr); 
                 CSB csb = init_csb(fs, next_csb_addr);
                 if (csb == null) break;
+                /*
                 Console.WriteLine("=======csb Address : {0}", csb.CSB_Address);
 
                 Console.WriteLine("checkpoint : {0}", csb.CSB_Checkpoint);
                 Console.WriteLine(" OldestCSBD : {0}", csb.OldestCSBD);
                 Console.WriteLine(" OriginalCSBD : {0}", csb.OriginalCSBD);
                 Console.WriteLine(" NextCSBD : {0}", csb.NextCSBD);
+                */
                 csb_list.Add(csb);
                 next_csb_addr = Utility.get_address(csb.NextCSBD) + CSB.BlockSize;
                 if (csb.OriginalCSBD == first_csb.OriginalCSBD) break;
@@ -135,8 +139,8 @@ namespace APFS
             csb.CSB_Magic = Utility.hex_to_charArray(hex.Substring(0, 8));
 
             n = fs.Read(buf, 0, 4);
-            hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-            CSB.BlockSize = (UInt32)Utility.little_hex_to_uint64(hex, n);
+            //hex = BitConverter.ToString(buf).Replace("-", String.Empty);
+            //CSB.BlockSize = (UInt32)Utility.little_hex_to_uint64(hex, n);
 
             n = fs.Read(buf, 0, 8);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);

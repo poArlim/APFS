@@ -61,10 +61,10 @@ namespace APFS
             List<BTCS> btom = new List<BTCS>();
             TableType[] table_info = Table.save_record(stream, block_num, header);
             Footer footer = Table.save_footer(stream, block_num, header);
-            
+
             if (header.table_type == 5 || header.table_type == 7)
             {
-                if(footer.TotalIndexNode > 1) //btin
+                if (footer.TotalIndexNode > 1) //btin
                 {
                     for (int i = 0; i < header.record_num; i++)
                     {
@@ -75,8 +75,8 @@ namespace APFS
                         btin_block_num.Add(b.BlockNum);
                     }
 
-                    btom = init_btin_all(stream, btin_block_num); 
-                    
+                    btom = init_btin_all(stream, btin_block_num);
+
                 }
                 else //btrn, btln
                 {
@@ -91,6 +91,7 @@ namespace APFS
                 }
 
             }
+            else return null; 
 
 
             

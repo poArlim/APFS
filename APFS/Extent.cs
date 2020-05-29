@@ -52,9 +52,7 @@ namespace APFS
 
         public static void write_extent(UInt64 NodeID, byte[] buf, long count, String path)
         {
-            Console.WriteLine("         path : {0}", path);
-        //    string octal = Utility.StringToOctal(RECORD.ffr_dict[NodeID].Flag);
-         //   Console.WriteLine("file mode : {0}", octal);
+            //Console.WriteLine("         path : {0}", path);
 
             if (!File.Exists(path))
             {
@@ -66,7 +64,6 @@ namespace APFS
                         fs.Write(buf, 0, (int)count);
                         
                     }
-                   // Utility.Exec("chmod " + octal.Substring(3) + " " + path);
                 }
                 catch (Exception e)
                 {

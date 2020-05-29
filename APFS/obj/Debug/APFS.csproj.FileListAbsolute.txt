@@ -4,3 +4,9 @@
 /Users/yang-yejin/APFS/APFS/obj/Debug/APFS.csprojAssemblyReference.cache
 /Users/yang-yejin/APFS/APFS/obj/Debug/APFS.exe
 /Users/yang-yejin/APFS/APFS/obj/Debug/APFS.pdb
+C:\Users\user\Desktop\APFS\APFS\bin\Debug\APFS.exe.config
+C:\Users\user\Desktop\APFS\APFS\bin\Debug\APFS.exe
+C:\Users\user\Desktop\APFS\APFS\bin\Debug\APFS.pdb
+C:\Users\user\Desktop\APFS\APFS\obj\Debug\APFS.csprojAssemblyReference.cache
+C:\Users\user\Desktop\APFS\APFS\obj\Debug\APFS.exe
+C:\Users\user\Desktop\APFS\APFS\obj\Debug\APFS.pdb
