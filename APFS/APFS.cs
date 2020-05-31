@@ -81,7 +81,8 @@ namespace APFS
                                 }
                                 catch (Exception e)
                                 {
-                                    Console.WriteLine("This APFS Cannot Recover...");
+                                    Console.WriteLine("This APFS Cannot Recover... :");
+                                    Console.WriteLine(e);
                                     return;
                                 }
 
@@ -93,18 +94,27 @@ namespace APFS
                                 Console.WriteLine("\n\nPlease select the checkpoint you want to go back to.");
                                 Console.WriteLine("(The larger the checkpoint, the more recent checkpoint.)");
                                 Console.Write("Checkpoint : ");
-                                for (int i = 1; i <= csb_list.Count; i++)
+                                for (int i = 0; i < csb_list.Count; i++)
                                 {
-                                    Console.Write("{0}  ", (int)msb.CSB_Checkpoint - csb_list.Count + i);
+                                    Console.Write("{0}  ", csb_list[i].CSB_Checkpoint);
+                                }
+                                Console.Write("\n Deleted Checkpoint : ");
+                                for (int i = 0; i < deleted_csb_list.Count; i++)
+                                {
+                                    Console.Write("{0}  ", deleted_csb_list[i].CSB_Checkpoint);
                                 }
                                 Console.WriteLine("");
                                 string s_chk = Console.ReadLine();
                                 chk = Convert.ToInt32(s_chk);
-                                idx = chk - (int)msb.CSB_Checkpoint + csb_list.Count - 1;
-                                if (idx >= 0 && idx < csb_list.Count)
+                                if (chk >= (int)csb_list[0].CSB_Checkpoint && chk <= (int)msb.CSB_Checkpoint)
                                 {
+                                    idx = chk - (int)msb.CSB_Checkpoint + csb_list.Count - 1;
                                     init_APFS(fs, csb_list[idx]);
-       
+                                }
+                                else if (chk >= (int)deleted_csb_list[0].CSB_Checkpoint && chk <= (int)deleted_csb_list[deleted_csb_list.Count - 1].CSB_Checkpoint)
+                                {
+                                    idx = chk - (int)deleted_csb_list[deleted_csb_list.Count - 1].CSB_Checkpoint + deleted_csb_list.Count - 1;
+                                    init_APFS(fs, deleted_csb_list[idx]);
                                 }
                                 else
                                 {
@@ -138,7 +148,7 @@ namespace APFS
                                             find = true;
                                             break;
                                         }
-      
+
                                     }
                                 }
                             }
@@ -168,7 +178,7 @@ namespace APFS
                                             find = true;
                                             break;
                                         }
-         
+
 
                                     }
                                 }
@@ -182,7 +192,7 @@ namespace APFS
                                 Console.WriteLine("Invalid Input");
                             }
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             Console.WriteLine(e.Message);
                         }
@@ -195,6 +205,10 @@ namespace APFS
             {
                 Console.WriteLine("Cannot Access dmg file");
                 return;
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("Cannot Find File...");
             }
 
 
