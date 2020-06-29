@@ -119,35 +119,6 @@ namespace APFS
         }
 
 
-        public static string StringToOctal(string data)
-        {
-            string binary = Convert.ToString(Convert.ToInt64(data, 16), 2).PadLeft(16, '0');
-            //Console.WriteLine(binary);
-            string octal = Convert.ToString(Convert.ToInt32(binary, 2), 8).PadLeft(6, '0'); ;
-            return octal;
-        }
-
-        //public static void Exec(string cmd)
-        //{
-        //    var escapedArgs = cmd.Replace("\"", "\\\"");
-
-        //    var process = new Process
-        //    {
-        //        StartInfo = new ProcessStartInfo
-        //        {
-        //            RedirectStandardOutput = true,
-        //            UseShellExecute = false,
-        //            CreateNoWindow = true,
-        //            WindowStyle = ProcessWindowStyle.Hidden,
-        //            FileName = "/bin/bash",
-        //            Arguments = $"-c \"{escapedArgs}\""
-        //        }
-        //    };
-
-        //    process.Start();
-        //    process.WaitForExit();
-        //}
-
 
         /* -littleEndian_to_bigEndian-
          * little endian hex의 string을 그에 맞는 big endian의 string으로 바꿔준다.

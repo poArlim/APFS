@@ -1,19 +1,18 @@
 ﻿<Properties StartupConfiguration="{2BE2EEB5-7DAD-45EB-9DFC-529B9ECBC0DD}|Default">
   <MonoDevelop.Ide.ItemProperties.APFS PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="APFS/Record.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="APFS/APFS.cs">
     <Files>
-      <File FileName="APFS/MetaExtent.cs" Line="1" Column="1" />
-      <File FileName="APFS/APFS.cs" Line="171" Column="30" />
-      <File FileName="APFS/Extent.cs" Line="63" Column="14" />
-      <File FileName="APFS/BTCS.cs" Line="109" Column="18" />
-      <File FileName="APFS/CSBD.cs" Line="6" Column="18" />
+      <File FileName="APFS/MetaExtent.cs" Line="6" Column="5" />
+      <File FileName="APFS/Extent.cs" Line="7" Column="18" />
+      <File FileName="APFS/BTCS.cs" Line="57" Column="43" />
       <File FileName="APFS/DirEntry.cs" Line="14" Column="18" />
-      <File FileName="APFS/VB.cs" Line="7" Column="19" />
-      <File FileName="APFS/VCSB.cs" Line="153" Column="91" />
-      <File FileName="APFS/CSB.cs" Line="95" Column="27" NotebookId="1" />
-      <File FileName="APFS/Utility.cs" Line="28" Column="25" NotebookId="1" />
-      <File FileName="APFS/Tables.cs" Line="284" Column="38" NotebookId="1" />
-      <File FileName="APFS/Record.cs" Line="66" Column="26" NotebookId="1" />
+      <File FileName="APFS/VCSB.cs" Line="6" Column="18" />
+      <File FileName="APFS/iNode.cs" />
+      <File FileName="APFS/APFS.cs" Line="85" Column="37" />
+      <File FileName="APFS/CSB.cs" Line="114" Column="35" />
+      <File FileName="APFS/Record.cs" Line="343" Column="32" />
+      <File FileName="APFS/Tables.cs" Line="293" Column="45" />
+      <File FileName="APFS/Utility.cs" Line="158" Column="55" />
     </Files>
     <Pads>
       <Pad Id="ClassPad">
@@ -21,7 +20,12 @@
           <Node name="APFS" expanded="True">
             <Node name="APFS" expanded="True">
               <Node name="APFS" expanded="True">
-                <Node name="APFS.VCSB" selected="True" />
+                <Node name="APFS.BTCS" expanded="True">
+                  <Node name="init_btin(System.IO.FileStream stream, ulong block_num)" selected="True" />
+                </Node>
+                <Node name="APFS.CSB" expanded="True" />
+                <Node name="APFS.RECORD" expanded="True" />
+                <Node name="APFS.Table" expanded="True" />
               </Node>
             </Node>
           </Node>

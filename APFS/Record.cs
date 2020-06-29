@@ -14,28 +14,6 @@ namespace APFS
         public static List<KeyRecord> kr_list = new List<KeyRecord>();
         public static Dictionary<UInt64, ExtentRecord> er_dic = new Dictionary<UInt64, ExtentRecord>(); //NodeID, ExtentRecord
 
-        //public static void Main()
-        //{
-        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
-        //    {
-        //        CSB.TotalSize = (UInt64)fs.Length; 
-        //        CSB.BlockSize = 4096;
-        //        CSB.MSB_Address = 20480;
-
-        //        init_btln(fs, 323);
-        //        init_btln(fs, 331);
-        //        init_btln(fs, 325);
-
-
-        //        foreach (KeyValuePair<UInt64, FileFolderRecord> kvp in ffr_dict)
-        //        {
-        //            String fname = new string(kvp.Value.FileName, 0, kvp.Value.FileName.Length - 1);
-        //            Console.WriteLine("NodeID : {0}, ----- {1}", kvp.Key, fname);
-        //        }
-
-        //    }
-        //}
-
         public static void init_btln(FileStream stream, UInt64 block_num)
         {
            

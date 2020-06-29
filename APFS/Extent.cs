@@ -8,38 +8,6 @@ namespace APFS
     {
 
 
-        //public static void Main()
-        //{
-        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
-        //    {
-        //        CSB.TotalSize = (UInt64)fs.Length;
-        //        CSB.BlockSize = 4096;
-        //        CSB.MSB_Address = 20480;
-
-        //        // CSB csb = CSB.init_csb(fs, 0);
-        //        Console.WriteLine("Start");
-        //        List<BTCS> btrn_btln = BTCS.init_btom(fs, 327);
-        //        int n = 0;
-        //        foreach (BTCS b in btrn_btln)
-        //        {
-        //            n++;
-        //            //Console.WriteLine("node id : {0}", b.NodeID);
-        //            //Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
-        //            //Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
-        //            if (n > 1)
-        //            {
-
-        //                RECORD.init_btln(fs, b.BlockNum);
-        //            }
-        //        }
-
-        //        create_dir(17, "");
-        //        create_dir(18, "1/");
-                
-        //        Console.WriteLine("Fin");
-        //    }
-        //}
-
         // Stream에서 특정 Offset부터 Count만큼 한 Extent로 묶어 냄
         public long Offset { get; set; }
 

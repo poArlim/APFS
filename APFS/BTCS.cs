@@ -11,49 +11,6 @@ namespace APFS
         public UInt64 BlockNum;
 
 
-        //static void Main()
-        //{
-        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/han.dmg", FileMode.Open))
-        //    {
-        //        CSB.TotalSize = (UInt64)fs.Length;
-        //        CSB.BlockSize = 4096;
-        //        CSB.MSB_Address = 20480;
-
-        //        // CSB csb = CSB.init_csb(fs, 0);
-        //        Console.WriteLine("Start");
-        //        List<BTCS> btrn_btln = init_btom(fs, 327);
-        //        foreach (BTCS b in btrn_btln)
-        //        {
-        //            Console.WriteLine("node id : {0}", b.NodeID);
-        //            Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
-        //            Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
-        //        }
-        //        Console.WriteLine("Fin");
-        //    }
-
-        //    //using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/noname.dmg", FileMode.Open))
-        //    //{
-        //    //    CSB.TotalSize = (UInt64) fs.Length;
-        //    //    CSB.BlockSize = 4096;
-        //    //    CSB.MSB_Address = 209735680;
-        //    //    // CSB csb = CSB.init_csb(fs, 0);
-        //    //    Console.WriteLine("Start");
-        //    //    List<UInt64> btin_block_num = new List<UInt64>();
-        //    //    List<BTCS> btrn_btln = new List<BTCS>() ; 
-        //    //    btin_block_num.Add(421577);
-        //    //    btin_block_num.Add(421494);
-        //    //    btin_block_num.Add(421575);
-        //    //    btrn_btln = init_btin_all(fs, btin_block_num);
-        //    //    foreach(BTCS b in btrn_btln)
-        //    //    {
-        //    //        Console.WriteLine("node id : {0}", b.NodeID);
-        //    //        Console.WriteLine("Checkpoint : {0}", b.Checkpoint);
-        //    //        Console.WriteLine("block num: {0}, {1}\n", b.BlockNum, Utility.get_address(b.BlockNum));
-        //    //    }
-        //    //    Console.WriteLine("Fin");
-        //    //}
-        //}
-
         public static List<BTCS> init_btom(FileStream stream, UInt64 block_num)
         {
             List<UInt64> btin_block_num = new List<UInt64>();

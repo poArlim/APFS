@@ -26,21 +26,7 @@ namespace APFS
 
         public char[] VolumeName; //0x2c0
 
-        //static void Main(String[] args)
-        //{
-        //    using (FileStream fs = new FileStream(@"/Users/im-aron/Documents/한컴GMD/han.dmg", FileMode.Open))
-        //    {
-        //        CSB.TotalSize = (UInt64)fs.Length;
-        //        CSB.BlockSize = 4096;
-        //        CSB csb = CSB.init_csb(fs, 0);
 
-        //        init_vcsb(fs, 332);
-
-        //        Console.WriteLine("FIN");
-
-
-        //    }
-        //}
 
         public static VCSB init_vcsb(FileStream fs, UInt64 block_num)
         {

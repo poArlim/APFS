@@ -27,18 +27,6 @@ namespace APFS
         public UInt32 VolumesMaxNumber;
         public UInt64 VolumeID_List;
 
-        //public static void Main()
-        //{
-        //    using (FileStream fs = new FileStream(@"/Users/yang-yejin/Desktop/file_info/newhan.dmg", FileMode.Open))
-        //    {
-        //        List<CSB> csb_list = get_csb_list(fs);
-        //        foreach (CSB c in csb_list)
-        //        {
-        //            Console.WriteLine("Chckpoint : {0}", c.CSB_Checkpoint);
-        //        }
-        //        Console.WriteLine("Fin");
-        //    }
-        //}
 
         public static List<CSB> get_csb_list(FileStream fs)
         {
@@ -126,7 +114,6 @@ namespace APFS
 
             n = fs.Read(buf, 0, 8);
             hex = BitConverter.ToString(buf).Replace("-", String.Empty);
-
             csb.BlockID = Utility.little_hex_to_uint64(hex, n);
 
             n = fs.Read(buf, 0, 8);
